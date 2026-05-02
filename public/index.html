@@ -1,0 +1,4348 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ya Hakeem — Risale-i Nur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+/* ══════════════════════════════════════════
+   TOKEN SYSTEM
+══════════════════════════════════════════ */
+:root, [data-theme="light"] {
+  --panel-ottoman-accent: #4A3FA3;
+  --panel-ottoman-light:  #EEF0FB;
+  --panel-ottoman-mid:    #C5C2E8;
+  --panel-sorani-accent:  #0C6650;
+  --panel-sorani-light:   #E6F4F0;
+  --panel-sorani-mid:     #8EC9B9;
+  --panel-turkish-accent: #8B3214;
+  --panel-turkish-light:  #F7EDE8;
+  --panel-turkish-mid:    #D9A28A;
+
+  --bg-page:      #EDE7DC;
+  --bg-primary:   #FDFAF5;
+  --bg-secondary: #F5F0E6;
+  --bg-tertiary:  #EBE4D6;
+  --bg-inset:     #EDE8DC;
+  --bg-sidebar:   #F8F4ED;
+
+  --text-primary:   #1C1A14;
+  --text-secondary: #5A5649;
+  --text-tertiary:  #9A9285;
+  --text-muted:     #B5AFA5;
+
+  --border-light:  rgba(90,80,60,0.10);
+  --border-mid:    rgba(90,80,60,0.18);
+  --border-strong: rgba(90,80,60,0.30);
+
+  --shadow-sm: 0 1px 3px rgba(60,50,30,0.08), 0 1px 2px rgba(60,50,30,0.06);
+  --shadow-md: 0 4px 16px rgba(60,50,30,0.10), 0 1px 4px rgba(60,50,30,0.07);
+  --shadow-lg: 0 8px 40px rgba(60,50,30,0.14), 0 2px 8px rgba(60,50,30,0.08);
+
+  --highlight-clicked: rgba(210,155,30,0.50);
+  --highlight-linked:  rgba(210,155,30,0.22);
+  --highlight-clicked-border: rgba(170,110,0,0.65);
+  --highlight-linked-border:  rgba(170,110,0,0.35);
+
+  --sidebar-active-bg: rgba(74,63,163,0.08);
+  --sidebar-hover-bg:  rgba(90,80,60,0.05);
+
+  --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg-page:      #111009;
+  --bg-primary:   #1C1A15;
+  --bg-secondary: #242118;
+  --bg-tertiary:  #2A271E;
+  --bg-inset:     #1F1D15;
+  --bg-sidebar:   #191710;
+
+  --text-primary:   #EDE8DC;
+  --text-secondary: #B0A898;
+  --text-tertiary:  #7A7568;
+  --text-muted:     #5A5549;
+
+  --border-light:  rgba(200,185,150,0.08);
+  --border-mid:    rgba(200,185,150,0.14);
+  --border-strong: rgba(200,185,150,0.24);
+
+  --panel-ottoman-light: rgba(74,63,163,0.14);
+  --panel-sorani-light:  rgba(12,102,80,0.14);
+  --panel-turkish-light: rgba(139,50,20,0.14);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.32);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.42);
+
+  --highlight-clicked: rgba(210,155,30,0.38);
+  --highlight-linked:  rgba(210,155,30,0.16);
+
+  --sidebar-active-bg: rgba(74,63,163,0.18);
+  --sidebar-hover-bg:  rgba(200,185,150,0.06);
+}
+
+/* ══════════════════════════════════════════
+   RESETS & BASE
+══════════════════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  font-family: 'Literata', 'Georgia', serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s, color 0.3s;
+  padding-top: 60px; /* fixed header height */
+}
+
+/* ══════════════════════════════════════════
+   SITE HEADER — fixed top nav
+══════════════════════════════════════════ */
+.site-header {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-mid);
+  padding: 0 12px 0 0;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s;
+  gap: 0;
+}
+.site-header-left {
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.site-header-center {
+  display: none; /* logo moved to left */
+}
+.site-header-right {
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: auto;
+}
+/* Logo block sits inline after hamburger */
+.site-logo-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 16px 0 12px;
+  border-right: 1px solid var(--border-light);
+  height: 60px;
+  gap: 1px;
+}
+.site-title {
+  font-family: 'Spectral', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.site-subtitle {
+  font-family: 'Spectral', serif;
+  font-size: 10px;
+  font-style: italic;
+  color: #0C6650;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+/* Hamburger in nav — no float, just a normal nav button */
+#btn-sidebar-toggle {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border-light);
+  border-radius: 0;
+  padding: 0 14px;
+  height: 60px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 17px;
+  line-height: 1;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+#btn-sidebar-toggle:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* ══════════════════════════════════════════
+   LAYOUT SHELL
+══════════════════════════════════════════ */
+#shell {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+#sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-mid);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.25s cubic-bezier(0.4,0,0.2,1), background 0.3s;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  height: calc(100vh - 60px);
+  z-index: 600;
+}
+#sidebar.collapsed { width: 0; }
+
+/* Offset main content so it doesn't hide behind the fixed sidebar */
+#main {
+  margin-left: 260px;
+  transition: margin-left 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+#main.sidebar-collapsed {
+  margin-left: 0;
+}
+
+/* Hamburger in nav — styled above in site-header section */
+
+.sidebar-inner {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+.sidebar-book-title {
+  font-family: 'Spectral', serif;
+  font-size: 13px; font-weight: 600; font-style: italic;
+  color: var(--text-primary); letter-spacing: 0.01em; margin-bottom: 2px;
+}
+.sidebar-book-sub {
+  font-family: 'Spectral', serif;
+  font-size: 10px; color: var(--text-muted); font-style: italic; letter-spacing: 0.05em;
+}
+
+.sidebar-scroll {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 8px 0 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-mid) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar { width: 4px; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+
+.toc-chapter { width: 100%; }
+.toc-chapter-btn {
+  display: flex; align-items: center; gap: 7px;
+  width: 100%; padding: 6px 16px 6px 14px;
+  background: transparent; border: none; cursor: pointer;
+  text-align: left; font-family: 'Spectral', serif;
+  font-size: 12px; font-style: italic; color: var(--text-secondary);
+  transition: background var(--transition), color var(--transition);
+  border-left: 2.5px solid transparent;
+}
+.toc-chapter-btn:hover { background: var(--sidebar-hover-bg); color: var(--text-primary); }
+.toc-chapter-btn.active {
+  background: var(--sidebar-active-bg);
+  color: var(--panel-ottoman-accent);
+  border-left-color: var(--panel-ottoman-accent);
+  font-weight: 600;
+}
+.toc-chapter-num { font-family: 'Spectral', serif; font-size: 10px; color: var(--text-muted); min-width: 22px; flex-shrink: 0; font-style: normal; }
+.toc-chapter-name { flex: 1; line-height: 1.35; }
+.toc-chevron { font-size: 9px; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; }
+.toc-chapter-btn.open .toc-chevron { transform: rotate(180deg); }
+
+.toc-sections { overflow: hidden; max-height: 0; transition: max-height 0.25s cubic-bezier(0.4,0,0.2,1); }
+.toc-sections.open { max-height: 600px; }
+
+.toc-section-btn {
+  display: block; width: 100%; padding: 4px 16px 4px 42px;
+  background: transparent; border: none; cursor: pointer;
+  text-align: left; font-family: 'Spectral', serif;
+  font-size: 11px; color: var(--text-tertiary); font-style: italic;
+  transition: background var(--transition), color var(--transition);
+  border-left: 2.5px solid transparent;
+  margin-left: 14px; width: calc(100% - 14px);
+}
+.toc-section-btn:hover { background: var(--sidebar-hover-bg); color: var(--text-secondary); }
+.toc-section-btn.active { color: var(--panel-ottoman-accent); border-left-color: var(--panel-ottoman-mid); background: var(--sidebar-active-bg); }
+
+/* ══════════════════════════════════════════
+   MAIN
+══════════════════════════════════════════ */
+#main {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+}
+
+/* ══════════════════════════════════════════
+   TOP BAR
+══════════════════════════════════════════ */
+.top-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+  background-image: linear-gradient(135deg, rgba(74,63,163,0.03) 0%, rgba(12,102,80,0.03) 50%, rgba(139,50,20,0.03) 100%);
+  transition: background 0.3s;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.top-bar-left { display: flex; align-items: center; gap: 8px; }
+.top-bar-right { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+
+.breadcrumb {
+  font-family: 'Spectral', serif; font-size: 12px; font-style: italic;
+  color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.breadcrumb strong { color: var(--text-secondary); font-weight: 600; }
+
+/* Icon button base */
+.icon-btn {
+  background: transparent; border: 1px solid var(--border-mid); border-radius: 6px;
+  padding: 5px 9px; cursor: pointer; font-size: 14px; line-height: 1;
+  color: var(--text-secondary);
+  transition: background var(--transition), color var(--transition);
+  position: relative; flex-shrink: 0;
+}
+.icon-btn:hover { background: var(--bg-primary); color: var(--text-primary); }
+.icon-btn.active { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+
+/* Layout toggle button */
+#btn-layout-toggle { font-size: 16px; padding: 5px 10px; }
+
+/* ══════════════════════════════════════════
+   SETTINGS RIGHT SIDEBAR (both desktop & mobile)
+══════════════════════════════════════════ */
+#settings-sidebar {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  width: 300px;
+  height: calc(100vh - 60px);
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-lg);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), background 0.3s;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-mid) transparent;
+  pointer-events: none;
+}
+#settings-sidebar::-webkit-scrollbar { width: 4px; }
+#settings-sidebar::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+#settings-sidebar.open { transform: translateX(0); pointer-events: auto; }
+
+.settings-sidebar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  position: sticky; top: 0; z-index: 1;
+}
+.settings-sidebar-title {
+  font-family: 'Spectral', serif; font-size: 14px; font-weight: 600; font-style: italic;
+  color: var(--text-primary);
+}
+.settings-sidebar-close {
+  background: none; border: 1px solid var(--border-light); border-radius: 5px;
+  font-size: 16px; cursor: pointer; color: var(--text-muted); padding: 2px 7px; line-height: 1;
+  transition: background var(--transition), color var(--transition);
+}
+.settings-sidebar-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+/* Quick toggles at top of settings sidebar — compact side-by-side pills */
+.sidebar-quick-toggles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 11px;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+.sidebar-toggle-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.sidebar-toggle-pill:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+}
+.sidebar-toggle-pill.active {
+  background: var(--panel-ottoman-light);
+  border-color: var(--panel-ottoman-mid);
+}
+.sidebar-toggle-pill svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color var(--transition);
+}
+.sidebar-toggle-pill.active svg { color: var(--panel-ottoman-accent); }
+.sidebar-toggle-pill:hover svg { color: var(--text-secondary); }
+/* Theme icon keeps its own color regardless of pill active/hover state */
+#btn-theme-icon { color: unset !important; }
+#btn-theme-icon.icon-moon { color: #7B82C4 !important; }
+#btn-theme-icon.icon-sun  { color: #D4920A !important; }
+.sidebar-toggle-pill-label {
+  font-family: 'Spectral', serif;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: color var(--transition);
+}
+.sidebar-toggle-pill.active .sidebar-toggle-pill-label { color: var(--panel-ottoman-accent); }
+
+.settings-sidebar-body {
+  padding: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.settings-sidebar-body > .settings-collapse-section {
+  margin: 8px 12px 4px;
+}
+
+
+
+/* Collapsible sections */
+.settings-collapse-section { border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; }
+.settings-collapse-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 10px 14px; background: var(--bg-secondary);
+  border: none; cursor: pointer; text-align: left;
+  font-family: 'Spectral', serif; font-size: 12px; font-weight: 600; font-style: italic;
+  color: var(--text-secondary); letter-spacing: 0.04em;
+  transition: background var(--transition), color var(--transition);
+}
+.settings-collapse-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.settings-collapse-chevron {
+  font-size: 9px; color: var(--text-muted);
+  transition: transform 0.2s; flex-shrink: 0;
+}
+.settings-collapse-btn.open .settings-collapse-chevron { transform: rotate(180deg); }
+.settings-collapse-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+  padding: 0 14px;
+  background: var(--bg-primary);
+}
+.settings-collapse-body.open { max-height: 600px; padding: 12px 14px; }
+
+.settings-section-title {
+  font-family: 'Spectral', serif; font-size: 10px; font-weight: 600; font-style: italic;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.09em;
+  margin-bottom: 8px; margin-top: 12px;
+}
+.settings-section-title:first-child { margin-top: 0; }
+
+.settings-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px; flex-wrap: wrap;
+}
+
+/* Per-language font row */
+.lang-font-group { margin-bottom: 10px; }
+.lang-font-label {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Spectral', serif; font-size: 10.5px; font-weight: 600; font-style: italic;
+  color: var(--text-secondary); margin-bottom: 5px;
+}
+.lang-font-label .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+.lang-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-mid);
+  background: transparent; font-family: 'Literata', serif;
+  font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-secondary);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.lang-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.lang-btn .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.lang-btn[data-lang="ottoman"] .dot { background: var(--panel-ottoman-accent); }
+.lang-btn[data-lang="sorani"]  .dot { background: var(--panel-sorani-accent); }
+.lang-btn[data-lang="turkish"] .dot { background: var(--panel-turkish-accent); }
+.lang-btn.active { border-width: 1.5px; color: var(--text-primary); background: var(--bg-primary); }
+.lang-btn[data-lang="ottoman"].active { border-color: var(--panel-ottoman-accent); background: var(--panel-ottoman-light); }
+.lang-btn[data-lang="sorani"].active  { border-color: var(--panel-sorani-accent);  background: var(--panel-sorani-light); }
+.lang-btn[data-lang="turkish"].active { border-color: var(--panel-turkish-accent); background: var(--panel-turkish-light); }
+
+/* Font family select */
+.settings-select {
+  flex: 1; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border-mid);
+  background: var(--bg-secondary); color: var(--text-primary);
+  font-family: 'Literata', serif; font-size: 12px; cursor: pointer;
+  transition: border-color var(--transition);
+}
+.settings-select:focus { outline: none; border-color: var(--border-strong); }
+
+/* Font size */
+.font-size-row { display: flex; align-items: center; gap: 8px; }
+.font-size-btn {
+  background: var(--bg-secondary); border: 1px solid var(--border-mid);
+  border-radius: 5px; padding: 3px 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; color: var(--text-secondary); line-height: 1.4;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+.font-size-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.font-size-display {
+  font-family: 'Spectral', serif; font-size: 12px; font-style: italic;
+  color: var(--text-secondary); min-width: 36px; text-align: center;
+}
+
+.settings-divider { border: none; border-top: 1px solid var(--border-light); margin: 10px 0; }
+
+/* Settings overlay for mobile backdrop */
+#settings-overlay-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 1190;
+  background: rgba(20,18,12,0.35); backdrop-filter: blur(2px);
+}
+#settings-overlay-backdrop.open { display: block; }
+
+/* ══════════════════════════════════════════
+   ADMIN LOGIN MODAL
+══════════════════════════════════════════ */
+#admin-login-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(20,18,12,0.60); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+}
+#admin-login-overlay.open { display: flex; }
+#admin-login-modal {
+  background: var(--bg-primary); border: 1px solid var(--border-mid);
+  border-radius: 18px; box-shadow: var(--shadow-lg);
+  width: 340px; max-width: calc(100vw - 32px);
+  overflow: hidden; animation: adminModalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes adminModalIn {
+  from { transform: scale(0.88) translateY(12px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.admin-login-header {
+  background: var(--bg-secondary);
+  padding: 28px 24px 20px; text-align: center;
+  border-bottom: 1px solid var(--border-light);
+}
+.admin-login-icon { font-size: 32px; margin-bottom: 10px; }
+.admin-login-title {
+  font-family: 'Spectral', serif; font-size: 18px; font-weight: 600;
+  color: var(--text-primary); margin-bottom: 4px;
+}
+.admin-login-sub {
+  font-family: 'Spectral', serif; font-size: 12px; font-style: italic;
+  color: var(--text-muted);
+}
+.admin-login-body { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 12px; }
+.admin-field { display: flex; flex-direction: column; gap: 5px; }
+.admin-label {
+  font-family: 'Spectral', serif; font-size: 11px; font-weight: 600;
+  font-style: italic; color: var(--text-secondary); letter-spacing: 0.04em;
+}
+.admin-input {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border-mid);
+  border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary);
+  font-family: 'Literata', serif; font-size: 14px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.admin-input:focus { outline: none; border-color: var(--panel-ottoman-accent); box-shadow: 0 0 0 3px rgba(74,63,163,0.1); }
+.admin-pw-wrap { position: relative; }
+.admin-pw-wrap .admin-input { padding-right: 42px; }
+.admin-pw-toggle {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; font-size: 15px;
+  color: var(--text-muted); padding: 4px; line-height: 1;
+}
+.admin-error {
+  font-family: 'Spectral', serif; font-size: 12px; font-style: italic;
+  color: #B93020; min-height: 18px; text-align: center;
+}
+.admin-submit-btn { width: 100%; justify-content: center; padding: 10px; font-size: 14px; }
+.admin-cancel-btn  { width: 100%; justify-content: center; padding: 8px; font-size: 13px; }
+
+/* ══════════════════════════════════════════
+   LANG TOGGLE STATUS (settings sidebar)
+══════════════════════════════════════════ */
+.lang-toggle-status {
+  font-size: 10px; font-family: 'Spectral', serif; font-style: italic;
+  color: var(--text-muted); border: 1px solid var(--border-light);
+  border-radius: 10px; padding: 1px 8px; flex-shrink: 0;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+.lang-toggle-status.active {
+  color: #0C6650; border-color: rgba(12,102,80,0.3); background: rgba(12,102,80,0.07);
+}
+.settings-collapse-btn.lang-toggle-btn { cursor: pointer; }
+.lang-section-header { display: flex; align-items: stretch; }
+.lang-section-header .settings-collapse-btn { border-radius: 0; margin: 0; }
+.lang-font-expand-btn { display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--border-light); border-radius: 0 !important; width: 36px; flex-shrink: 0; padding: 0 !important; }
+
+/* ══════════════════════════════════════════
+   EDIT MODE — INLINE CARD EDITOR
+══════════════════════════════════════════ */
+.edit-card-overlay {
+  background: var(--bg-primary); border: 1px solid var(--border-mid);
+  border-radius: 14px; box-shadow: var(--shadow-md);
+  overflow: hidden; margin-bottom: 4px;
+}
+.edit-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+.edit-card-title {
+  font-family: 'Spectral', serif; font-size: 13px; font-weight: 600;
+  font-style: italic; color: var(--text-primary);
+}
+.edit-card-actions { display: flex; gap: 6px; }
+.edit-save-btn { background: var(--panel-ottoman-accent); color: #fff; border: none; border-radius: 7px; padding: 5px 14px; font-family: 'Spectral',serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+.edit-save-btn:hover { opacity: 0.88; }
+.edit-cancel-btn { background: var(--bg-tertiary); border: 1px solid var(--border-mid); border-radius: 7px; padding: 5px 12px; font-family: 'Spectral',serif; font-size: 12px; cursor: pointer; color: var(--text-secondary); transition: background var(--transition); }
+.edit-cancel-btn:hover { background: var(--bg-inset); }
+
+/* Edit collapsible lang sections */
+.edit-lang-section { border-bottom: 1px solid var(--border-light); }
+.edit-lang-section:last-child { border-bottom: none; }
+.edit-lang-toggle {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 10px 16px; background: none; border: none; cursor: pointer;
+  font-family: 'Spectral', serif; font-size: 12px; font-weight: 600; font-style: italic;
+  color: var(--text-secondary); text-align: left;
+  transition: background var(--transition);
+}
+.edit-lang-toggle:hover { background: var(--bg-secondary); }
+.edit-lang-toggle .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.edit-lang-chevron { margin-left: auto; font-size: 9px; color: var(--text-muted); transition: transform 0.2s; }
+.edit-lang-toggle.open .edit-lang-chevron { transform: rotate(180deg); }
+.edit-lang-body { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), padding 0.2s; }
+.edit-lang-body.open { max-height: 200px; padding: 10px 16px; }
+.edit-lang-textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border-mid);
+  border-radius: 7px; background: var(--bg-secondary); color: var(--text-primary);
+  font-family: 'Literata', serif; font-size: 13px; resize: vertical; min-height: 56px;
+  transition: border-color var(--transition);
+}
+.edit-lang-textarea:focus { outline: none; border-color: var(--border-strong); }
+.edit-token-preview { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+/* Edit — word mapping collapsible */
+.edit-mapping-section { border-top: 1px solid var(--border-light); }
+.edit-mapping-toggle {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 10px 16px; background: none; border: none; cursor: pointer;
+  font-family: 'Spectral', serif; font-size: 11px; font-weight: 600; font-style: italic;
+  color: var(--text-muted); text-align: left; letter-spacing: 0.04em;
+  transition: background var(--transition);
+}
+.edit-mapping-toggle:hover { background: var(--bg-secondary); }
+.edit-mapping-chevron { margin-left: auto; font-size: 9px; color: var(--text-muted); transition: transform 0.2s; }
+.edit-mapping-toggle.open .edit-mapping-chevron { transform: rotate(180deg); }
+.edit-mapping-body { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.2s; }
+.edit-mapping-body.open { max-height: 800px; padding: 8px 16px 14px; }
+
+/* ══════════════════════════════════════════
+   ADMIN BADGE in CMS bar
+══════════════════════════════════════════ */
+.cms-bar-admin-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'Spectral', serif; font-size: 11px; font-style: italic;
+  color: var(--panel-ottoman-accent); background: var(--panel-ottoman-light);
+  border: 1px solid var(--panel-ottoman-mid); border-radius: 10px;
+  padding: 2px 9px;
+}
+
+/* ══════════════════════════════════════════
+   CMS — AI TRANSLATE UI
+══════════════════════════════════════════ */
+.cms-field-hint {
+  font-family: 'Spectral', serif; font-size: 10px; font-style: italic;
+  color: var(--text-muted); margin-left: 5px; font-weight: 400;
+}
+.gemini-key-row { display: flex; gap: 6px; align-items: center; }
+.gemini-key-row .admin-input { flex: 1; padding: 7px 10px; font-size: 13px; }
+.gemini-key-hint {
+  font-family: 'Spectral', serif; font-size: 11px; font-style: italic;
+  color: var(--text-muted); margin-top: 4px; min-height: 16px;
+}
+.gemini-key-hint.ok  { color: #0C6650; }
+.gemini-key-hint.err { color: #B93020; }
+
+.cms-ai-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0 4px; padding: 10px 14px;
+  background: var(--bg-secondary); border-radius: 10px;
+  border: 1px solid var(--border-light);
+}
+.ai-btn {
+  background: linear-gradient(135deg, #4A3FA3 0%, #0C6650 100%);
+  color: #fff; border: none; font-weight: 600; font-size: 13px;
+  padding: 7px 16px; border-radius: 8px; display: flex; align-items: center; gap: 6px;
+  cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+}
+.ai-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+.ai-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.ai-btn-icon { font-size: 15px; }
+.ai-status {
+  font-family: 'Spectral', serif; font-size: 12px; font-style: italic;
+  color: var(--text-secondary); display: flex; align-items: center; gap: 6px;
+}
+.ai-status.error { color: #B93020; }
+.ai-spinner {
+  width: 14px; height: 14px; border: 2px solid var(--border-mid);
+  border-top-color: var(--panel-ottoman-accent);
+  border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.cms-review-banner {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--panel-sorani-light); border: 1px solid var(--panel-sorani-mid);
+  border-radius: 8px; padding: 8px 12px; margin-bottom: 10px;
+  font-family: 'Spectral', serif; font-size: 12px; font-style: italic;
+  color: var(--panel-sorani-accent);
+}
+.cms-review-banner-icon { font-size: 16px; }
+.cms-review-redo {
+  margin-left: auto; background: var(--bg-primary);
+  border-color: var(--panel-sorani-mid); font-size: 11px; padding: 3px 10px;
+}
+#btn-back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 800;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-md);
+  opacity: 0; visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.25s, visibility 0.25s, transform 0.25s, background var(--transition);
+}
+#btn-back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+#btn-back-to-top:hover { background: var(--panel-ottoman-accent); }
+
+/* ══════════════════════════════════════════
+   READING MODE
+══════════════════════════════════════════ */
+#reading-mode-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  top: 60px;
+  z-index: 500;
+  background: var(--bg-primary);
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+#reading-mode-overlay.open { display: flex; }
+
+.reading-mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  height: 52px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-mid);
+  flex-shrink: 0;
+}
+
+/* Chapter info in reading bar */
+.reading-mode-chapter-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+.reading-mode-chapter-title {
+  font-family: 'Spectral', serif;
+  font-size: 14px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.reading-mode-chapter-sub {
+  font-family: 'Spectral', serif;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+}
+
+/* Language dropdown wrapper */
+.reading-lang-select-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.reading-lang-select-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-primary);
+  font-family: 'Spectral', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  white-space: nowrap;
+  min-width: 140px;
+}
+.reading-lang-select-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.reading-lang-select-btn .dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.reading-lang-select-btn .chevron {
+  margin-left: auto;
+  font-size: 8px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.reading-lang-select-btn.open .chevron { transform: rotate(180deg); }
+
+.reading-lang-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  min-width: 170px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-mid);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 900;
+  overflow: hidden;
+  display: none;
+}
+.reading-lang-dropdown.open { display: block; }
+
+.reading-lang-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Spectral', serif;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+  border-bottom: 1px solid var(--border-light);
+}
+.reading-lang-option:last-child { border-bottom: none; }
+.reading-lang-option:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.reading-lang-option.selected { color: var(--text-primary); font-weight: 600; background: var(--bg-tertiary); }
+.reading-lang-option .opt-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.reading-lang-option .opt-check {
+  margin-left: auto;
+  font-size: 11px;
+  opacity: 0;
+}
+.reading-lang-option.selected .opt-check { opacity: 1; }
+
+.reading-mode-close {
+  background: transparent;
+  border: 1px solid var(--border-mid);
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+.reading-mode-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.reading-mode-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px min(64px, 6vw);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-mid) transparent;
+}
+.reading-mode-body::-webkit-scrollbar { width: 5px; }
+.reading-mode-body::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+
+.reading-text-block {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.reading-lang-section {
+  margin-bottom: 32px;
+}
+.reading-lang-label {
+  font-family: 'Spectral', serif;
+  font-size: 11px;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-transform: uppercase;
+}
+.reading-lang-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
+}
+.reading-lang-bar {
+  width: 18px; height: 3px; border-radius: 3px; flex-shrink: 0;
+}
+.reading-ottoman .reading-lang-bar { background: var(--panel-ottoman-accent); }
+.reading-sorani  .reading-lang-bar { background: var(--panel-sorani-accent); }
+.reading-turkish .reading-lang-bar { background: var(--panel-turkish-accent); }
+
+.reading-prose {
+  color: var(--text-primary);
+  line-height: 2.0;
+}
+.reading-ottoman .reading-prose,
+.reading-sorani  .reading-prose {
+  direction: rtl;
+  text-align: right;
+  font-family: var(--ottoman-font-family, 'Noto Naskh Arabic', serif);
+  font-size: var(--ottoman-font-size, 22px);
+  line-height: 2.4;
+}
+.reading-sorani .reading-prose {
+  font-size: var(--sorani-font-size, 22px);
+}
+.reading-turkish .reading-prose {
+  direction: ltr;
+  text-align: left;
+  font-family: var(--turkish-font-family, 'Crimson Pro', 'Georgia', serif);
+  font-size: var(--turkish-font-size, 20px);
+  font-style: italic;
+  line-height: 1.95;
+}
+
+/* Sentence boundary markers in reading prose */
+.reading-sent-sep {
+  display: inline;
+  opacity: 0.28;
+  font-size: 0.7em;
+  margin: 0 0.35em;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.reading-mode-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  font-family: 'Spectral', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-muted);
+  transition: background 0.3s;
+}
+
+
+/* ══════════════════════════════════════════
+   SECTION TITLE STRIP
+══════════════════════════════════════════ */
+.section-title-strip {
+  padding: 10px 18px 8px; border-bottom: 1px solid var(--border-light);
+  background: var(--bg-primary); flex-shrink: 0;
+}
+.section-title-strip h1 {
+  font-family: 'Spectral', serif; font-size: 17px; font-weight: 600; font-style: italic;
+  color: var(--text-primary); letter-spacing: 0.01em;
+}
+.section-title-strip .sub {
+  font-family: 'Spectral', serif; font-size: 11px; color: var(--text-muted);
+  font-style: italic; margin-top: 2px; letter-spacing: 0.04em;
+}
+
+/* ══════════════════════════════════════════
+   PANELS AREA
+══════════════════════════════════════════ */
+#panels-outer {
+  background: var(--bg-inset);
+  background-image: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-inset) 100%);
+  transition: background 0.3s;
+}
+
+/* Sentence block */
+.sentence-block {
+  padding: 12px 14px 10px; border-bottom: 1px solid var(--border-light);
+}
+.sentence-block:last-child { border-bottom: none; }
+
+.sentence-label {
+  font-family: 'Spectral', serif; font-size: 10px; color: var(--text-muted);
+  font-style: italic; letter-spacing: 0.06em; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sentence-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border-light);
+}
+
+/* ══════════════════════════════════════════
+   MERGED CARD (single card per sentence)
+══════════════════════════════════════════ */
+.merged-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition), background 0.3s;
+  position: relative;
+}
+.merged-card:hover { box-shadow: var(--shadow-md); }
+
+/* Card header row */
+.card-header {
+  display: flex; align-items: center;
+  padding: 8px 12px 7px;
+  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--panel-ottoman-light) 40%, transparent),
+    color-mix(in srgb, var(--panel-sorani-light) 40%, transparent),
+    color-mix(in srgb, var(--panel-turkish-light) 40%, transparent));
+  gap: 8px;
+}
+.card-header-langs {
+  display: flex; align-items: center; gap: 5px; flex: 1;
+}
+.lang-pip {
+  width: 6px; height: 6px; border-radius: 50%;
+  display: inline-block; flex-shrink: 0;
+}
+.lang-pip.ottoman { background: var(--panel-ottoman-accent); }
+.lang-pip.sorani  { background: var(--panel-sorani-accent); }
+.lang-pip.turkish { background: var(--panel-turkish-accent); }
+.lang-pip-label {
+  font-family: 'Spectral', serif; font-size: 10px; font-style: italic;
+  color: var(--text-muted); letter-spacing: 0.04em;
+}
+.lang-sep { color: var(--border-strong); font-size: 10px; }
+
+/* Three-dot menu */
+.card-menu-wrapper { position: relative; flex-shrink: 0; }
+.card-three-dot {
+  background: transparent; border: none; border-radius: 5px;
+  padding: 3px 7px; cursor: pointer; color: var(--text-muted);
+  font-size: 16px; line-height: 1;
+  transition: background var(--transition), color var(--transition);
+}
+.card-three-dot:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.card-dropdown {
+  position: absolute; top: calc(100% + 4px); right: 0;
+  background: var(--bg-primary); border: 1px solid var(--border-mid);
+  border-radius: 10px; box-shadow: var(--shadow-lg);
+  padding: 5px 0; min-width: 140px; z-index: 300;
+  display: none;
+}
+.card-dropdown.open { display: block; }
+.card-dropdown-item {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 7px 14px;
+  background: none; border: none; cursor: pointer;
+  font-family: 'Literata', serif; font-size: 13px; color: var(--text-secondary);
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+.card-dropdown-item:hover { background: var(--sidebar-hover-bg); color: var(--text-primary); }
+.card-dropdown-item .di-icon { font-size: 14px; }
+
+/* Language sections inside card */
+.card-lang-section {
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.2s;
+}
+.card-lang-section:last-child { border-bottom: none; }
+.card-lang-section.hidden { display: none; }
+
+.card-lang-header {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 14px 0;
+}
+.card-accent-bar { width: 2.5px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.section-ottoman .card-accent-bar { background: var(--panel-ottoman-accent); }
+.section-sorani  .card-accent-bar { background: var(--panel-sorani-accent); }
+.section-turkish .card-accent-bar { background: var(--panel-turkish-accent); }
+
+.card-lang-title {
+  font-family: 'Spectral', serif; font-size: 10.5px; font-weight: 600; font-style: italic;
+  color: var(--text-tertiary);
+}
+.card-lang-script {
+  font-family: 'Spectral', serif; font-size: 9.5px; color: var(--text-muted);
+  font-style: italic; margin-left: auto; letter-spacing: 0.04em;
+}
+
+.card-lang-body {
+  padding: 6px 16px 12px;
+  color: var(--text-primary);
+}
+.section-ottoman .card-lang-body,
+.section-sorani  .card-lang-body {
+  direction: rtl; text-align: right;
+}
+.section-ottoman .card-lang-body {
+  font-family: var(--ottoman-font-family, 'Noto Naskh Arabic', serif);
+  font-size: var(--ottoman-font-size, 20px);
+  line-height: 2.4;
+}
+.section-sorani .card-lang-body {
+  font-family: var(--sorani-font-family, 'Noto Naskh Arabic', serif);
+  font-size: var(--sorani-font-size, 20px);
+  line-height: 2.4;
+}
+.section-turkish .card-lang-body {
+  direction: ltr; text-align: left;
+  font-family: var(--turkish-font-family, 'Crimson Pro', 'Georgia', serif);
+  font-size: var(--turkish-font-size, 18px);
+  font-style: italic;
+  line-height: 2.1;
+}
+
+/* word tokens */
+.word {
+  display: inline; border-radius: 3px; padding: 1px 3px; cursor: pointer;
+  border: 1px solid transparent;
+  transition: background var(--transition), border-color var(--transition);
+  user-select: none;
+}
+.word:hover { background: rgba(130,100,50,0.09); }
+.word.highlight-clicked { background: var(--highlight-clicked); border-color: var(--highlight-clicked-border); }
+.word.highlight-linked  { background: var(--highlight-linked);  border-color: var(--highlight-linked-border); }
+
+/* Animation */
+@keyframes sentFadeIn { from { opacity:0; transform: translateY(5px); } to { opacity:1; transform: none; } }
+.sentence-block.anim-enter { animation: sentFadeIn 0.22s cubic-bezier(0,0,0.2,1) both; }
+
+/* ══════════════════════════════════════════
+   PAGINATION
+══════════════════════════════════════════ */
+.page-bar {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 10px 18px; border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary); flex-shrink: 0; transition: background 0.3s;
+}
+.page-btn {
+  display: flex; align-items: center; gap: 5px; padding: 5px 14px;
+  border-radius: 6px; border: 1px solid var(--border-mid); background: transparent;
+  font-family: 'Literata', serif; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: var(--text-primary);
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+.page-btn:hover:not(:disabled) { background: var(--bg-primary); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.page-btn:disabled { opacity: 0.28; cursor: default; }
+.page-counter {
+  font-family: 'Spectral', serif; font-size: 12.5px; font-weight: 500; font-style: italic;
+  color: var(--text-secondary); min-width: 90px; text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   CMS BAR
+══════════════════════════════════════════ */
+.cms-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  padding: 8px 18px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  background-image: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  flex-shrink: 0; transition: background 0.3s;
+}
+.cms-bar-label {
+  font-family: 'Spectral', serif; font-size: 10px; color: var(--text-muted);
+  font-style: italic; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.cms-btn {
+  padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border-mid);
+  background: transparent; font-family: 'Literata', serif; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: var(--text-secondary);
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+.cms-btn:hover { background: var(--bg-primary); color: var(--text-primary); transform: translateY(-1px); }
+.cms-btn.primary { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+.cms-btn.primary:hover { opacity: 0.85; }
+.cms-btn.danger { color: #a83222; border-color: rgba(168,50,34,0.32); }
+.cms-btn.danger:hover { background: rgba(168,50,34,0.07); }
+.cms-saved-tag {
+  font-family: 'Spectral', serif; font-size: 11px; font-style: italic;
+  color: var(--panel-sorani-accent); font-weight: 500;
+  opacity: 0; transition: opacity 0.4s; margin-left: 4px;
+}
+.cms-saved-tag.visible { opacity: 1; }
+
+/* ══════════════════════════════════════════
+   WORD POPUP
+══════════════════════════════════════════ */
+#word-popup {
+  position: fixed; z-index: 9999;
+  background: var(--bg-primary); border: 1px solid var(--border-strong);
+  border-radius: 12px; box-shadow: var(--shadow-lg);
+  padding: 12px 14px; min-width: 180px; max-width: 280px;
+  pointer-events: none;
+  opacity: 0; visibility: hidden;
+  transform: translateY(4px) scale(0.97);
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+#word-popup.visible { opacity: 1; visibility: visible; transform: none; }
+.popup-header {
+  font-family: 'Spectral', serif; font-size: 10px; font-weight: 500; font-style: italic;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border-light);
+}
+.popup-row {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 4px 0; border-bottom: 1px solid var(--border-light);
+}
+.popup-row:last-child { border-bottom: none; }
+.popup-lang-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.popup-lang-label { font-family: 'Spectral', serif; font-size: 10px; font-style: italic; color: var(--text-muted); min-width: 58px; flex-shrink: 0; }
+.popup-word { font-family: 'Noto Naskh Arabic', serif; font-size: 15px; color: var(--text-primary); flex: 1; text-align: right; }
+.popup-word.rtl { direction: rtl; unicode-bidi: embed; text-align: right; }
+.popup-word:not(.rtl):not(.null-word) { font-family: 'Crimson Pro', serif; font-size: 15px; font-style: italic; text-align: left; }
+.popup-word.null-word { font-family: 'Literata', serif; color: var(--text-muted); font-size: 13px; text-align: center; }
+.popup-no-mapping { font-family: 'Spectral', serif; font-size: 12px; color: var(--text-muted); font-style: italic; }
+
+/* ══════════════════════════════════════════
+   CMS MODAL
+══════════════════════════════════════════ */
+#cms-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 10000;
+  background: rgba(20,18,12,0.55); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+#cms-modal-overlay.open { display: flex; opacity: 1; }
+#cms-modal {
+  background: var(--bg-primary); border: 1px solid var(--border-mid);
+  border-radius: 16px; box-shadow: var(--shadow-lg);
+  padding: 1.5rem; width: min(580px, 94vw); max-height: 90vh; overflow-y: auto;
+  transform: translateY(12px) scale(0.97); opacity: 0;
+  transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s;
+}
+#cms-modal-overlay.open #cms-modal { transform: none; opacity: 1; }
+
+.cms-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.3rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border-light); }
+.cms-modal-title { font-family: 'Spectral', serif; font-size: 15px; font-weight: 600; font-style: italic; color: var(--text-primary); }
+.cms-modal-close { background: none; border: 1px solid var(--border-light); border-radius: 5px; font-size: 17px; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 3px 7px; transition: background var(--transition), color var(--transition); }
+.cms-modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.cms-field-group { margin-bottom: 1.1rem; }
+.cms-field-label { display: flex; align-items: center; gap: 6px; font-family: 'Spectral', serif; font-size: 11px; font-weight: 600; font-style: italic; color: var(--text-secondary); margin-bottom: 6px; }
+.cms-field-label .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.cms-textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border-mid); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 16px; font-family: 'Noto Naskh Arabic', serif; resize: vertical; min-height: 48px; line-height: 1.6; transition: border-color var(--transition); }
+.cms-textarea:not(.rtl-input) { font-family: 'Crimson Pro', serif; font-style: italic; }
+.cms-textarea:focus { outline: none; border-color: var(--border-strong); box-shadow: 0 0 0 3px rgba(90,80,60,0.07); }
+.cms-textarea.rtl-input { direction: rtl; text-align: right; }
+.cms-token-preview { margin-top: 5px; padding: 7px 9px; background: var(--bg-inset); border-radius: 6px; border: 1px solid var(--border-light); min-height: 34px; display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; }
+.cms-token-preview:empty::before { content: "Tokens will appear here…"; color: var(--text-muted); font-family: 'Spectral', serif; font-size: 11px; font-style: italic; }
+.cms-token { font-family: 'Literata', serif; font-size: 11.5px; background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: 4px; padding: 2px 7px; color: var(--text-secondary); white-space: nowrap; }
+.cms-token .idx { font-size: 9.5px; color: var(--text-muted); margin-right: 3px; }
+.cms-modal-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 1.2rem; padding-top: 0.9rem; border-top: 1px solid var(--border-light); }
+.cms-hint { font-family: 'Spectral', serif; font-size: 10.5px; font-style: italic; color: var(--text-muted); margin-right: auto; max-width: 200px; line-height: 1.5; }
+.cms-section-divider { border: none; border-top: 1px solid var(--border-light); margin: 1.2rem 0 0.9rem; }
+.cms-section-title { font-family: 'Spectral', serif; font-size: 11px; font-weight: 600; font-style: italic; color: var(--text-secondary); letter-spacing: 0.04em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 7px; }
+.section-badge { font-family: 'Literata', serif; font-size: 10px; font-weight: 400; font-style: normal; background: var(--bg-tertiary); border: 1px solid var(--border-light); border-radius: 4px; padding: 1px 6px; color: var(--text-muted); }
+.cms-mapping-hint { font-family: 'Spectral', serif; font-size: 11px; font-style: italic; color: var(--text-muted); margin-bottom: 0.7rem; line-height: 1.55; }
+#cms-mapping-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 7px; }
+.mapping-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 5px; align-items: start; padding: 7px 9px; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 6px; }
+.mapping-row-inner { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mapping-row-label { font-family: 'Spectral', serif; font-size: 9.5px; font-style: italic; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.mapping-row-label .dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.mapping-index-input { width: 100%; padding: 4px 7px; border: 1px solid var(--border-mid); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-family: 'Literata', serif; font-size: 12px; transition: border-color var(--transition); min-width: 0; }
+.mapping-index-input:focus { outline: none; border-color: var(--border-strong); }
+.mapping-index-input.invalid { border-color: #a83222; background: rgba(168,50,34,0.05); }
+.mapping-index-input.valid { border-color: var(--panel-sorani-accent); }
+.mapping-input-error { font-family: 'Spectral', serif; font-size: 9.5px; font-style: italic; color: #a83222; min-height: 13px; }
+.mapping-remove-btn { padding: 4px 7px; border-radius: 4px; border: 1px solid var(--border-mid); background: transparent; font-size: 11px; cursor: pointer; color: var(--text-muted); align-self: center; margin-top: 13px; line-height: 1; transition: background var(--transition), color var(--transition); }
+.mapping-remove-btn:hover { background: rgba(168,50,34,0.07); color: #a83222; border-color: rgba(168,50,34,0.35); }
+.mapping-row-empty { font-family: 'Spectral', serif; font-size: 11px; font-style: italic; color: var(--text-muted); padding: 8px 0; }
+.cms-mapping-global-error { font-family: 'Spectral', serif; font-size: 11px; font-style: italic; color: #a83222; margin-top: 5px; min-height: 15px; }
+
+/* CMS modal collapsible language sections */
+.cms-lang-collapse-section {
+  border: 1px solid var(--border-light); border-radius: 8px;
+  overflow: hidden; margin-bottom: 8px;
+}
+.cms-lang-collapse-btn {
+  display: flex; align-items: center; gap: 7px; width: 100%;
+  padding: 9px 12px; background: var(--bg-secondary); border: none; cursor: pointer;
+  font-family: 'Spectral', serif; font-size: 12px; font-weight: 600; font-style: italic;
+  color: var(--text-secondary); text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+.cms-lang-collapse-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.cms-lang-collapse-hint {
+  font-family: 'Spectral', serif; font-size: 10px; font-style: italic;
+  color: var(--text-muted); margin-left: 4px; font-weight: 400; flex: 1;
+}
+.cms-lang-chevron {
+  font-size: 9px; color: var(--text-muted);
+  transition: transform 0.2s; flex-shrink: 0;
+}
+.cms-lang-collapse-btn.open .cms-lang-chevron { transform: rotate(180deg); }
+.cms-lang-collapse-body {
+  max-height: 0; overflow: hidden; padding: 0 12px;
+  transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), padding 0.2s;
+  background: var(--bg-primary);
+}
+.cms-lang-collapse-body.open { max-height: 400px; padding: 10px 12px 12px; }
+
+/* ══════════════════════════════════════════
+   FEEDBACK MODAL
+══════════════════════════════════════════ */
+#feedback-overlay {
+  display: none; position: fixed; inset: 0; z-index: 10001;
+  background: rgba(20,18,12,0.55); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+#feedback-overlay.open { display: flex; opacity: 1; }
+#feedback-modal {
+  background: var(--bg-primary); border: 1px solid var(--border-mid);
+  border-radius: 16px; box-shadow: var(--shadow-lg);
+  padding: 1.5rem; width: min(480px, 94vw); max-height: 90vh; overflow-y: auto;
+  transform: translateY(12px) scale(0.97); opacity: 0;
+  transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s;
+}
+#feedback-overlay.open #feedback-modal { transform: none; opacity: 1; }
+
+.fb-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fb-title { font-family: 'Spectral', serif; font-size: 15px; font-weight: 600; font-style: italic; color: var(--text-primary); }
+
+.fb-field { margin-bottom: 0.9rem; }
+.fb-label { display: block; font-family: 'Spectral', serif; font-size: 11px; font-weight: 600; font-style: italic; color: var(--text-secondary); margin-bottom: 5px; }
+.fb-input, .fb-textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border-mid); border-radius: 7px;
+  background: var(--bg-secondary); color: var(--text-primary);
+  font-family: 'Literata', serif; font-size: 14px;
+  transition: border-color var(--transition);
+}
+.fb-input:focus, .fb-textarea:focus { outline: none; border-color: var(--border-strong); box-shadow: 0 0 0 3px rgba(90,80,60,0.07); }
+.fb-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+.fb-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.2rem; padding-top: 0.9rem; border-top: 1px solid var(--border-light); }
+
+.fb-success {
+  display: none; padding: 12px 14px; background: var(--panel-sorani-light);
+  border: 1px solid var(--panel-sorani-mid); border-radius: 8px;
+  font-family: 'Spectral', serif; font-size: 13px; font-style: italic;
+  color: var(--panel-sorani-accent); text-align: center; margin-top: 12px;
+}
+.fb-success.visible { display: block; }
+
+/* ══════════════════════════════════════════
+   GOOGLE AUTH
+══════════════════════════════════════════ */
+.google-login-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 6px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-primary); cursor: pointer;
+  color: var(--text-secondary); font-size: 12px;
+  font-family: 'Spectral', serif; font-style: italic;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0; line-height: 1;
+}
+.google-login-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.google-login-btn.signed-in { background: var(--panel-sorani-light); border-color: var(--panel-sorani-mid); color: var(--panel-sorani-accent); }
+.google-icon { flex-shrink: 0; }
+.google-login-label { white-space: nowrap; max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+.google-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-mid); flex-shrink: 0; }
+
+/* ══════════════════════════════════════════
+   REFLECTIONS SIDEBAR
+══════════════════════════════════════════ */
+#reflections-sidebar {
+  position: fixed; top: 60px; right: 0;
+  width: 340px; height: calc(100vh - 60px);
+  background: var(--bg-primary); border-left: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-lg); z-index: 1210;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), background 0.3s;
+  pointer-events: none;
+}
+#reflections-sidebar.open { transform: translateX(0); pointer-events: auto; }
+.refl-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 12px; border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0; background: var(--bg-secondary); position: sticky; top: 0; z-index: 1;
+}
+.refl-title {
+  font-family: 'Spectral', serif; font-size: 14px; font-weight: 600; font-style: italic;
+  color: var(--text-primary); display: flex; align-items: center; gap: 7px;
+}
+.refl-sentence-label {
+  font-family: 'Spectral', serif; font-size: 10px; font-style: italic;
+  color: var(--text-muted); margin-left: 2px;
+}
+.refl-close {
+  background: none; border: 1px solid var(--border-light); border-radius: 5px;
+  font-size: 16px; cursor: pointer; color: var(--text-muted); padding: 2px 7px; line-height: 1;
+  transition: background var(--transition), color var(--transition);
+}
+.refl-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.refl-body { flex: 1; overflow-y: auto; padding: 12px 14px 24px; scrollbar-width: thin; scrollbar-color: var(--border-mid) transparent; }
+.refl-body::-webkit-scrollbar { width: 4px; }
+.refl-body::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+
+/* Reflections collapsible sections */
+.refl-section { border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+.refl-section-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 10px 13px; background: var(--bg-secondary);
+  border: none; cursor: pointer; text-align: left;
+  font-family: 'Spectral', serif; font-size: 12px; font-weight: 600; font-style: italic;
+  color: var(--text-secondary); letter-spacing: 0.03em;
+  transition: background var(--transition), color var(--transition);
+}
+.refl-section-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.refl-section-chevron { font-size: 9px; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; }
+.refl-section-btn.open .refl-section-chevron { transform: rotate(180deg); }
+.refl-section-body { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1); background: var(--bg-primary); }
+.refl-section-body.open { max-height: 1200px; }
+.refl-section-inner { padding: 10px 13px 12px; display: flex; flex-direction: column; gap: 7px; }
+
+/* Resource items */
+.refl-item {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 8px 10px; border-radius: 8px;
+  background: var(--bg-secondary); border: 1px solid var(--border-light);
+  transition: background var(--transition);
+}
+.refl-item:hover { background: var(--bg-tertiary); }
+.refl-item-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.refl-item-body { flex: 1; min-width: 0; }
+.refl-item-title {
+  font-family: 'Spectral', serif; font-size: 12.5px; font-weight: 500;
+  color: var(--text-primary); line-height: 1.4; margin-bottom: 2px;
+}
+.refl-item-title a { color: inherit; text-decoration: none; }
+.refl-item-title a:hover { color: var(--panel-ottoman-accent); text-decoration: underline; }
+.refl-item-meta {
+  font-family: 'Spectral', serif; font-size: 10.5px; font-style: italic;
+  color: var(--text-muted); line-height: 1.4;
+}
+.refl-item-edit {
+  background: none; border: none; cursor: pointer; font-size: 12px;
+  color: var(--text-muted); padding: 2px 5px; border-radius: 4px;
+  transition: background var(--transition), color var(--transition); flex-shrink: 0;
+}
+.refl-item-edit:hover { background: var(--bg-inset); color: var(--text-primary); }
+.refl-item-delete {
+  background: none; border: none; cursor: pointer; font-size: 11px;
+  color: var(--text-muted); padding: 2px 5px; border-radius: 4px;
+  transition: background var(--transition), color var(--transition); flex-shrink: 0;
+}
+.refl-item-delete:hover { background: rgba(168,50,34,0.07); color: #a83222; }
+
+/* My Reflections */
+.refl-my-add-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 8px; border-radius: 7px;
+  border: 1px dashed var(--border-mid); background: transparent; cursor: pointer;
+  font-family: 'Spectral', serif; font-size: 12px; font-style: italic;
+  color: var(--text-tertiary);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.refl-my-add-btn:hover { background: var(--bg-secondary); color: var(--text-secondary); border-color: var(--border-strong); }
+.refl-my-item {
+  background: var(--panel-ottoman-light); border: 1px solid var(--panel-ottoman-mid);
+  border-radius: 8px; padding: 9px 11px; position: relative;
+}
+.refl-my-item-text {
+  font-family: 'Literata', serif; font-size: 13px; color: var(--text-primary);
+  line-height: 1.6; word-break: break-word;
+}
+.refl-my-item-url {
+  font-family: 'Spectral', serif; font-size: 11px; font-style: italic;
+  color: var(--panel-ottoman-accent); word-break: break-all; margin-top: 4px;
+}
+.refl-my-item-url a { color: inherit; text-decoration: underline dotted; }
+.refl-my-item-meta {
+  font-family: 'Spectral', serif; font-size: 10px; font-style: italic;
+  color: var(--text-muted); margin-top: 5px;
+}
+.refl-my-item-actions {
+  display: flex; gap: 4px; margin-top: 6px; justify-content: flex-end;
+}
+.refl-login-note {
+  padding: 10px 13px; font-family: 'Spectral', serif; font-size: 12px;
+  font-style: italic; color: var(--text-muted); text-align: center; line-height: 1.6;
+}
+
+/* Admin edit form inside reflections */
+.refl-admin-add-form {
+  background: var(--bg-secondary); border: 1px solid var(--border-mid);
+  border-radius: 9px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.refl-admin-input {
+  width: 100%; padding: 7px 9px; border: 1px solid var(--border-mid);
+  border-radius: 6px; background: var(--bg-primary); color: var(--text-primary);
+  font-family: 'Literata', serif; font-size: 13px;
+  transition: border-color var(--transition);
+}
+.refl-admin-input:focus { outline: none; border-color: var(--border-strong); }
+.refl-admin-row { display: flex; gap: 6px; }
+.refl-admin-select {
+  flex: 1; padding: 6px 8px; border: 1px solid var(--border-mid);
+  border-radius: 6px; background: var(--bg-primary); color: var(--text-primary);
+  font-family: 'Literata', serif; font-size: 12px; cursor: pointer;
+}
+
+/* User add reflection form */
+.refl-user-form {
+  background: var(--bg-secondary); border: 1px solid var(--border-mid);
+  border-radius: 9px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.refl-user-textarea {
+  width: 100%; padding: 7px 9px; border: 1px solid var(--border-mid);
+  border-radius: 6px; background: var(--bg-primary); color: var(--text-primary);
+  font-family: 'Literata', serif; font-size: 13px; resize: vertical; min-height: 70px;
+  transition: border-color var(--transition);
+}
+.refl-user-textarea:focus { outline: none; border-color: var(--border-strong); }
+.refl-form-row { display: flex; gap: 6px; justify-content: flex-end; }
+
+@media (max-width: 600px) {
+  #reflections-sidebar { width: 100%; max-width: 340px; }
+}
+footer {
+  background: var(--bg-sidebar); border-top: 1px solid var(--border-mid);
+  padding: 16px 24px; flex-shrink: 0;
+  text-align: center;
+}
+.footer-brand {
+  font-family: 'Spectral', serif; font-size: 13px; font-weight: 600; font-style: italic;
+  color: var(--text-primary); margin-bottom: 4px;
+}
+.footer-contacts {
+  font-family: 'Spectral', serif; font-size: 11px; font-style: italic;
+  color: var(--text-muted); display: flex; gap: 14px; justify-content: center;
+  flex-wrap: wrap; margin-top: 4px;
+}
+.footer-contacts a { color: var(--text-muted); text-decoration: none; }
+.footer-contacts a:hover { color: var(--text-secondary); }
+.footer-copy {
+  font-family: 'Spectral', serif; font-size: 10px; color: var(--text-muted);
+  font-style: italic; margin-top: 6px; letter-spacing: 0.04em;
+}
+
+/* ══════════════════════════════════════════
+   FOCUS & A11Y
+══════════════════════════════════════════ */
+:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.icon-btn:focus-visible, .page-btn:focus-visible, .cms-btn:focus-visible,
+.cms-modal-close:focus-visible { outline: 2px solid var(--text-secondary); outline-offset: 2px; box-shadow: 0 0 0 4px rgba(90,80,60,0.10); }
+.word:focus-visible { outline: 2px solid var(--text-secondary); outline-offset: 1px; border-radius: 4px; }
+.cms-textarea:focus-visible, .mapping-index-input:focus-visible { outline: none; }
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 600px) {
+  #sidebar {
+    z-index: 1100;
+  }
+  #main { margin-left: 0 !important; }
+  #reading-mode-overlay { left: 0 !important; }
+  .top-bar { padding: 8px 10px; gap: 6px; }
+  .site-title { font-size: 15px; }
+  .sentence-block { padding: 10px 10px 8px; }
+  .mapping-row { grid-template-columns: 1fr; }
+  .mapping-row-inner { flex-direction: row; align-items: center; gap: 5px; }
+  .mapping-remove-btn { margin-top: 0; }
+  .cms-modal-footer { flex-direction: column; align-items: stretch; }
+  .breadcrumb { max-width: 120px; }
+  footer { padding: 12px 16px; }
+  .footer-contacts { gap: 8px; flex-direction: column; align-items: center; }
+  /* Settings sidebar takes full width on mobile */
+  #settings-sidebar { width: 100%; max-width: 320px; }
+  #btn-back-to-top { bottom: 16px; right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Site Header -->
+<header class="site-header">
+  <div class="site-header-left">
+    <button id="btn-sidebar-toggle" aria-label="Toggle sidebar" aria-expanded="false">☰</button>
+    <div class="site-logo-block">
+      <span class="site-title">Ya Hakeem</span>
+      <span class="site-subtitle">Risale-i Nur</span>
+    </div>
+  </div>
+  <div class="site-header-right">
+    <button id="btn-reading-mode" class="icon-btn" aria-label="Reading mode" title="Reading mode" style="font-size:13px;display:flex;align-items:center;gap:4px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    </button>
+    <button id="btn-reflections-open" class="icon-btn" aria-label="Reflections" title="Reflections">💡</button>
+    <button id="btn-settings" class="icon-btn" aria-label="Layout settings" title="Layout settings" style="display:flex;align-items:center;justify-content:center;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+        <circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
+    <button id="btn-google-login" class="google-login-btn" aria-label="Sign in with Google" title="Sign in with Google">
+      <svg class="google-icon" viewBox="0 0 24 24" width="14" height="14"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      <span class="google-login-label" id="google-login-label">Sign in</span>
+    </button>
+  </div>
+</header>
+
+<div id="shell">
+
+  <!-- ══ SIDEBAR ══ -->
+  <nav id="sidebar" aria-label="Table of contents">
+    <div class="sidebar-inner">
+      <div class="sidebar-header">
+        <div class="sidebar-book-title">Risale-i Nur</div>
+        <div class="sidebar-book-sub">Trilingual Parallel Text</div>
+      </div>
+      <div class="sidebar-scroll" id="sidebar-scroll"></div>
+    </div>
+  </nav>
+
+  <!-- ══ MAIN ══ -->
+  <div id="main">
+
+    <!-- Top bar — breadcrumb only, controls are in the fixed header -->
+    <div class="top-bar">
+      <span class="breadcrumb" id="breadcrumb"><strong>Sözler</strong> · Birinci Söz</span>
+    </div>
+
+    <!-- Section title -->
+    <div class="section-title-strip">
+      <h1 id="section-heading">Birinci Söz</h1>
+      <div class="sub" id="section-sub">The First Word — Sözler · Said Nursi</div>
+    </div>
+
+    <!-- Panels (sentences rendered here) -->
+    <div id="panels-outer" role="main" aria-label="Parallel text viewer"></div>
+
+    <!-- Pagination bar -->
+    <div class="page-bar" role="navigation" aria-label="Page navigation">
+      <button class="page-btn" id="btn-prev-page" disabled aria-label="Previous page">
+        <span aria-hidden="true">←</span> Prev
+      </button>
+      <span class="page-counter" id="page-counter" aria-live="polite">Page 1 of 1</span>
+      <button class="page-btn" id="btn-next-page" aria-label="Next page">
+        Next <span aria-hidden="true">→</span>
+      </button>
+    </div>
+
+    <!-- CMS bar -->
+    <div class="cms-bar" role="toolbar" aria-label="Content management" id="cms-bar">
+      <span class="cms-bar-label" id="cms-bar-label">Admin</span>
+      <button class="cms-btn primary" id="btn-add-sentence" style="display:none">+ Add Sentence</button>
+      <button class="cms-btn danger"  id="btn-reset-data"   style="display:none">Reset Data</button>
+      <button class="cms-btn"         id="btn-admin-login">🔒 Admin Login</button>
+      <button class="cms-btn danger"  id="btn-admin-logout" style="display:none">Logout</button>
+      <span class="cms-saved-tag" id="cms-saved-tag" role="status" aria-live="polite">✓ Saved</span>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-brand">Ya Hakeem 2026</div>
+  <div class="footer-contacts">
+    <a href="tel:+9647501588515">📞 +964 750 158 8515</a>
+    <a href="mailto:yahakeemapp@gmail.com">✉️ yahakeemapp@gmail.com</a>
+    <span>📍 Halabja, Kurdistan</span>
+  </div>
+  <div class="footer-copy">Risale-i Nur · Trilingual Parallel Text Viewer</div>
+</footer>
+
+<!-- Word popup -->
+<div id="word-popup" role="tooltip" aria-label="Word links across languages">
+  <div class="popup-header">Word links</div>
+  <div id="popup-content"></div>
+</div>
+
+<!-- CMS Modal -->
+<div id="cms-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cms-modal-title-id">
+  <div id="cms-modal">
+    <div class="cms-modal-header">
+      <span class="cms-modal-title" id="cms-modal-title-id">Add New Sentence</span>
+      <button class="cms-modal-close" id="cms-modal-close-btn" aria-label="Close dialog">&times;</button>
+    </div>
+
+    <!-- Step 1: Ottoman + Turkish input -->
+    <div id="cms-step-input">
+      <!-- Ottoman collapsible -->
+      <div class="cms-lang-collapse-section">
+        <button class="cms-lang-collapse-btn" data-target="cms-lang-body-ottoman">
+          <span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:var(--panel-ottoman-accent)"></span>Ottoman Turkish</span>
+          <span class="cms-lang-collapse-hint">word-by-word, space-separated</span>
+          <span class="cms-lang-chevron">▼</span>
+        </button>
+        <div class="cms-lang-collapse-body" id="cms-lang-body-ottoman">
+          <textarea class="cms-textarea rtl-input" id="input-ottoman" placeholder="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ" rows="2" dir="rtl" spellcheck="false"></textarea>
+          <div class="cms-token-preview" id="preview-ottoman"></div>
+        </div>
+      </div>
+      <!-- Turkish collapsible -->
+      <div class="cms-lang-collapse-section">
+        <button class="cms-lang-collapse-btn" data-target="cms-lang-body-turkish">
+          <span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:var(--panel-turkish-accent)"></span>Turkish</span>
+          <span class="cms-lang-collapse-hint">word-by-word, matching Ottoman order</span>
+          <span class="cms-lang-chevron">▼</span>
+        </button>
+        <div class="cms-lang-collapse-body" id="cms-lang-body-turkish">
+          <textarea class="cms-textarea" id="input-turkish" placeholder="Allah'ın adıyla, o Rahman ve Rahim'in" rows="2" spellcheck="false"></textarea>
+          <div class="cms-token-preview" id="preview-turkish"></div>
+        </div>
+      </div>
+
+      <!-- Gemini API key -->
+      <div class="cms-field-group" id="gemini-key-group">
+        <div class="cms-field-label">✨ Gemini API Key <span class="cms-field-hint">used locally, never sent elsewhere</span></div>
+        <div class="gemini-key-row">
+          <input type="password" class="admin-input" id="input-gemini-key" placeholder="AIza…" autocomplete="off" spellcheck="false">
+          <button class="cms-btn" id="btn-gemini-key-toggle" type="button">Show</button>
+          <button class="cms-btn" id="btn-gemini-key-save" type="button" title="Save key to browser">💾</button>
+        </div>
+        <div class="gemini-key-hint" id="gemini-key-hint"></div>
+      </div>
+
+      <!-- AI translate button -->
+      <div class="cms-ai-bar">
+        <button class="cms-btn ai-btn" id="btn-ai-translate">
+          <span class="ai-btn-icon">✨</span> Translate to Sorani &amp; Map Words
+        </button>
+        <div class="ai-status" id="ai-status"></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Review AI result -->
+    <div id="cms-step-review" style="display:none">
+      <div class="cms-review-banner">
+        <span class="cms-review-banner-icon">✨</span>
+        <span>AI result — review and edit before saving</span>
+        <button class="cms-btn cms-review-redo" id="btn-ai-redo">↩ Re-generate</button>
+      </div>
+      <!-- Sorani collapsible -->
+      <div class="cms-lang-collapse-section">
+        <button class="cms-lang-collapse-btn" data-target="cms-lang-body-sorani">
+          <span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:var(--panel-sorani-accent)"></span>Sorani Kurdish</span>
+          <span class="cms-lang-collapse-hint">AI-generated · edit if needed</span>
+          <span class="cms-lang-chevron">▼</span>
+        </button>
+        <div class="cms-lang-collapse-body" id="cms-lang-body-sorani">
+          <textarea class="cms-textarea rtl-input" id="input-sorani" placeholder="" rows="2" dir="rtl" spellcheck="false"></textarea>
+          <div class="cms-token-preview" id="preview-sorani"></div>
+        </div>
+      </div>
+      <!-- Word mapping collapsible -->
+      <div class="cms-lang-collapse-section">
+        <button class="cms-lang-collapse-btn" data-target="cms-mapping-body">
+          <span style="display:flex;align-items:center;gap:6px">Word Mapping</span>
+          <span class="cms-lang-collapse-hint section-badge">AI-generated</span>
+          <span class="cms-lang-chevron">▼</span>
+        </button>
+        <div class="cms-lang-collapse-body" id="cms-mapping-body">
+          <p class="cms-mapping-hint">Each row links one word across all three languages by index. Edit indices if needed.</p>
+          <div id="cms-mapping-rows"></div>
+          <div class="cms-mapping-global-error" id="cms-mapping-global-error"></div>
+          <button class="cms-btn" id="btn-add-mapping-row">+ Add Row</button>
+        </div>
+      </div>
+    </div><!-- /cms-step-review -->
+
+    <div class="cms-modal-footer">
+      <button class="cms-btn" id="cms-cancel-btn">Cancel</button>
+      <button class="cms-btn primary" id="cms-save-btn">Save Sentence</button>
+    </div>
+  </div><!-- /cms-modal -->
+</div><!-- /cms-modal-overlay -->
+
+<!-- Feedback Modal -->
+<div id="feedback-overlay" role="dialog" aria-modal="true" aria-labelledby="fb-title-id">
+  <div id="feedback-modal">
+    <div class="fb-header">
+      <span class="fb-title" id="fb-title-id">Send Feedback</span>
+      <button class="cms-modal-close" id="fb-close-btn" aria-label="Close feedback">&times;</button>
+    </div>
+    <div class="fb-field">
+      <label class="fb-label" for="fb-name">Name</label>
+      <input class="fb-input" id="fb-name" type="text" placeholder="Your name" autocomplete="name">
+    </div>
+    <div class="fb-field">
+      <label class="fb-label" for="fb-email">Email</label>
+      <input class="fb-input" id="fb-email" type="email" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="fb-field">
+      <label class="fb-label" for="fb-phone">Phone</label>
+      <input class="fb-input" id="fb-phone" type="tel" placeholder="+964 750 000 0000" autocomplete="tel">
+    </div>
+    <div class="fb-field">
+      <label class="fb-label" for="fb-body">Message</label>
+      <textarea class="fb-textarea" id="fb-body" placeholder="Write your feedback here…" rows="4"></textarea>
+    </div>
+    <div class="fb-success" id="fb-success">✓ Thank you for your feedback!</div>
+    <div class="fb-footer">
+      <button class="cms-btn" id="fb-cancel-btn">Cancel</button>
+      <button class="cms-btn primary" id="fb-submit-btn">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div id="admin-login-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">
+  <div id="admin-login-modal">
+    <div class="admin-login-header">
+      <div class="admin-login-icon">🔒</div>
+      <h2 class="admin-login-title" id="admin-login-title">Admin Access</h2>
+      <p class="admin-login-sub">Enter your credentials to manage content</p>
+    </div>
+    <div class="admin-login-body">
+      <!-- Google Admin Sign-in -->
+      <div id="admin-google-section">
+        <button id="btn-admin-google" type="button" style="
+          display:flex;align-items:center;justify-content:center;gap:10px;
+          width:100%;padding:10px 16px;border-radius:8px;cursor:pointer;
+          border:1px solid #dadce0;background:#fff;
+          font-family:'Spectral',serif;font-size:14px;font-weight:600;color:#3c4043;
+          transition:box-shadow 0.2s,background 0.2s;margin-bottom:8px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Sign in with Google
+        </button>
+        <div id="admin-google-status" style="font-family:'Spectral',serif;font-size:12px;font-style:italic;color:var(--text-muted);text-align:center;margin-bottom:8px;min-height:16px;"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin:10px 0;">
+          <div style="flex:1;height:1px;background:var(--border-mid);"></div>
+          <span style="font-family:'Spectral',serif;font-size:11px;font-style:italic;color:var(--text-muted);">or use credentials</span>
+          <div style="flex:1;height:1px;background:var(--border-mid);"></div>
+        </div>
+      </div>
+      <div class="admin-field">
+        <label class="admin-label" for="admin-username">Username</label>
+        <input class="admin-input" id="admin-username" type="text" placeholder="admin" autocomplete="username" spellcheck="false">
+      </div>
+      <div class="admin-field">
+        <label class="admin-label" for="admin-password">Password</label>
+        <div class="admin-pw-wrap">
+          <input class="admin-input" id="admin-password" type="password" placeholder="••••••••" autocomplete="current-password">
+          <button class="admin-pw-toggle" id="btn-pw-toggle" type="button" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <div class="admin-error" id="admin-error"></div>
+      <button class="cms-btn primary admin-submit-btn" id="btn-admin-submit">Sign In</button>
+      <button class="cms-btn admin-cancel-btn" id="btn-admin-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings backdrop -->
+<div id="settings-overlay-backdrop"></div>
+
+<!-- Settings Right Sidebar -->
+<div id="settings-sidebar" role="complementary" aria-label="Settings">
+  <div class="settings-sidebar-header">
+    <span class="settings-sidebar-title">Layout Settings</span>
+    <button class="settings-sidebar-close" id="settings-sidebar-close" aria-label="Close settings">&times;</button>
+  </div>
+  <div class="settings-sidebar-body">
+
+    <!-- Quick toggles: Theme & Layout -->
+    <div class="sidebar-quick-toggles">
+      <button id="btn-theme" class="sidebar-toggle-pill" aria-label="Toggle theme" title="Toggle theme">
+        <svg id="btn-theme-icon" class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <span class="sidebar-toggle-pill-label" id="btn-theme-label">Dark mode</span>
+      </button>
+      <button id="btn-layout-toggle" class="sidebar-toggle-pill active" aria-label="Toggle layout" title="Toggle layout">
+        <svg id="btn-layout-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="18" rx="1"/>
+          <rect x="14" y="3" width="7" height="18" rx="1"/>
+        </svg>
+        <span class="sidebar-toggle-pill-label" id="btn-layout-label">Side by side</span>
+      </button>
+    </div>
+
+    <!-- Ottoman: toggle + collapsible font settings -->
+    <div class="settings-collapse-section">
+      <div class="lang-section-header">
+        <button class="settings-collapse-btn lang-toggle-btn" data-lang="ottoman" aria-pressed="true" style="flex:1;border-right:1px solid var(--border-light);">
+          <span style="display:flex;align-items:center;gap:7px">
+            <span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--panel-ottoman-accent);flex-shrink:0"></span>Ottoman
+          </span>
+          <span class="lang-toggle-status active">Visible</span>
+        </button>
+        <button class="settings-collapse-btn lang-font-expand-btn" data-target="collapse-ottoman-font" style="border-radius:0;" title="Font settings">
+          <span style="font-size:11px;color:var(--text-muted)">Aa</span>
+          <span class="settings-collapse-chevron">▼</span>
+        </button>
+      </div>
+      <div class="settings-collapse-body" id="collapse-ottoman-font">
+        <div class="lang-font-group">
+          <div class="lang-font-label">Font Family</div>
+          <select id="select-font-ottoman" class="settings-select" aria-label="Ottoman font family">
+            <option value="Noto Naskh Arabic">Noto Naskh Arabic</option>
+            <option value="serif">System Serif</option>
+          </select>
+        </div>
+        <div class="lang-font-group">
+          <div class="lang-font-label">Font Size</div>
+          <div class="font-size-row">
+            <button class="font-size-btn" id="btn-ottoman-font-dec" aria-label="Decrease Ottoman font size">−</button>
+            <span class="font-size-display" id="display-ottoman-font">20px</span>
+            <button class="font-size-btn" id="btn-ottoman-font-inc" aria-label="Increase Ottoman font size">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sorani: toggle + collapsible font settings -->
+    <div class="settings-collapse-section">
+      <div class="lang-section-header">
+        <button class="settings-collapse-btn lang-toggle-btn" data-lang="sorani" aria-pressed="true" style="flex:1;border-right:1px solid var(--border-light);">
+          <span style="display:flex;align-items:center;gap:7px">
+            <span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--panel-sorani-accent);flex-shrink:0"></span>Sorani
+          </span>
+          <span class="lang-toggle-status active">Visible</span>
+        </button>
+        <button class="settings-collapse-btn lang-font-expand-btn" data-target="collapse-sorani-font" style="border-radius:0;" title="Font settings">
+          <span style="font-size:11px;color:var(--text-muted)">Aa</span>
+          <span class="settings-collapse-chevron">▼</span>
+        </button>
+      </div>
+      <div class="settings-collapse-body" id="collapse-sorani-font">
+        <div class="lang-font-group">
+          <div class="lang-font-label">Font Family</div>
+          <select id="select-font-sorani" class="settings-select" aria-label="Sorani font family">
+            <option value="Noto Naskh Arabic">Noto Naskh Arabic</option>
+            <option value="serif">System Serif</option>
+          </select>
+        </div>
+        <div class="lang-font-group">
+          <div class="lang-font-label">Font Size</div>
+          <div class="font-size-row">
+            <button class="font-size-btn" id="btn-sorani-font-dec" aria-label="Decrease Sorani font size">−</button>
+            <span class="font-size-display" id="display-sorani-font">20px</span>
+            <button class="font-size-btn" id="btn-sorani-font-inc" aria-label="Increase Sorani font size">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turkish: toggle + collapsible font settings -->
+    <div class="settings-collapse-section">
+      <div class="lang-section-header">
+        <button class="settings-collapse-btn lang-toggle-btn" data-lang="turkish" aria-pressed="true" style="flex:1;border-right:1px solid var(--border-light);">
+          <span style="display:flex;align-items:center;gap:7px">
+            <span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--panel-turkish-accent);flex-shrink:0"></span>Turkish
+          </span>
+          <span class="lang-toggle-status active">Visible</span>
+        </button>
+        <button class="settings-collapse-btn lang-font-expand-btn open" data-target="collapse-turkish-font" style="border-radius:0;" title="Font settings">
+          <span style="font-size:11px;color:var(--text-muted)">Aa</span>
+          <span class="settings-collapse-chevron open">▼</span>
+        </button>
+      </div>
+      <div class="settings-collapse-body open" id="collapse-turkish-font">
+        <div class="lang-font-group">
+          <div class="lang-font-label">Font Family</div>
+          <select id="select-font-turkish" class="settings-select" aria-label="Turkish font family">
+            <option value="Crimson Pro">Crimson Pro</option>
+            <option value="Spectral">Spectral</option>
+            <option value="Literata">Literata</option>
+            <option value="Georgia">Georgia</option>
+            <option value="serif">System Serif</option>
+          </select>
+        </div>
+        <div class="lang-font-group">
+          <div class="lang-font-label">Font Size</div>
+          <div class="font-size-row">
+            <button class="font-size-btn" id="btn-turkish-font-dec" aria-label="Decrease Turkish font size">−</button>
+            <span class="font-size-display" id="display-turkish-font">18px</span>
+            <button class="font-size-btn" id="btn-turkish-font-inc" aria-label="Increase Turkish font size">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Reflections Sidebar -->
+<div id="reflections-sidebar" role="complementary" aria-label="Reflections">
+  <div class="refl-header">
+    <div class="refl-title">
+      💡 Reflections
+      <span class="refl-sentence-label" id="refl-sentence-label"></span>
+    </div>
+    <button class="refl-close" id="refl-close" aria-label="Close reflections">&times;</button>
+  </div>
+  <div class="refl-body" id="refl-body">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- Back to Top -->
+<button id="btn-back-to-top" aria-label="Back to top">↑</button>
+
+<!-- Reading Mode Overlay -->
+<div id="reading-mode-overlay" role="dialog" aria-modal="true" aria-label="Reading mode">
+  <div class="reading-mode-bar">
+    <div class="reading-mode-chapter-info">
+      <div class="reading-mode-chapter-title" id="reading-chapter-title">Birinci Söz</div>
+      <div class="reading-mode-chapter-sub" id="reading-chapter-sub">Sözler · Said Nursi</div>
+    </div>
+    <div class="reading-lang-select-wrap" id="reading-lang-select-wrap">
+      <button class="reading-lang-select-btn" id="reading-lang-select-btn" aria-haspopup="listbox" aria-expanded="false">
+        <span class="dot" id="reading-lang-btn-dot" style="background:var(--panel-sorani-accent)"></span>
+        <span id="reading-lang-btn-label">All languages</span>
+        <span class="chevron">▼</span>
+      </button>
+      <div class="reading-lang-dropdown" id="reading-lang-dropdown" role="listbox">
+        <button class="reading-lang-option selected" data-lang="all" role="option">
+          <span class="opt-dot" style="background:var(--text-muted)"></span>
+          All languages
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="reading-lang-option" data-lang="ottoman" role="option">
+          <span class="opt-dot" style="background:var(--panel-ottoman-accent)"></span>
+          Ottoman Turkish
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="reading-lang-option" data-lang="sorani" role="option">
+          <span class="opt-dot" style="background:var(--panel-sorani-accent)"></span>
+          Sorani Kurdish
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="reading-lang-option" data-lang="turkish" role="option">
+          <span class="opt-dot" style="background:var(--panel-turkish-accent)"></span>
+          Turkish
+          <span class="opt-check">✓</span>
+        </button>
+      </div>
+    </div>
+    <button class="reading-mode-close" id="btn-reading-mode-close" aria-label="Close reading mode">✕</button>
+  </div>
+  <div class="reading-mode-body" id="reading-mode-body">
+    <div class="reading-text-block" id="reading-text-block">
+      <!-- populated by JS -->
+    </div>
+  </div>
+  <div class="reading-mode-footer" id="reading-mode-footer">
+    <!-- sentence count info -->
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   BOOK / TOC DATA
+══════════════════════════════════════════ */
+const BOOKS = [
+  {
+    id: "sozler", title: "Sözler", subtitle: "The Words",
+    chapters: [
+      { id: "birinci-soz",      num: 1,  title: "Birinci Söz",       sections: [] },
+      { id: "ikinci-soz",       num: 2,  title: "İkinci Söz",        sections: [] },
+      { id: "ucuncu-soz",       num: 3,  title: "Üçüncü Söz",        sections: [] },
+      { id: "dorduncu-soz",     num: 4,  title: "Dördüncü Söz",      sections: [] },
+      { id: "besinci-soz",      num: 5,  title: "Beşinci Söz",       sections: [] },
+      { id: "altinci-soz",      num: 6,  title: "Altıncı Söz",       sections: [] },
+      { id: "yedinci-soz",      num: 7,  title: "Yedinci Söz",       sections: [] },
+      { id: "sekizinci-soz",    num: 8,  title: "Sekizinci Söz",     sections: [] },
+      { id: "dokuzuncu-soz",    num: 9,  title: "Dokuzuncu Söz",     sections: [] },
+      { id: "onuncu-soz",       num: 10, title: "Onuncu Söz",        sections: ["Mukaddime","On İki Suret","Hâtime: İşaretler (Beş İşaret)","Zeyiller (Birinci – Beşinci Zeyil)"] },
+      { id: "on-birinci-soz",   num: 11, title: "On Birinci Söz",    sections: [] },
+      { id: "on-ikinci-soz",    num: 12, title: "On İkinci Söz",     sections: [] },
+      { id: "on-ucuncu-soz",    num: 13, title: "On Üçüncü Söz",     sections: ["İkinci Makam","Hüve Nüktesi"] },
+      { id: "on-dorduncu-soz",  num: 14, title: "On Dördüncü Söz",   sections: ["Zeyil"] },
+      { id: "on-besinci-soz",   num: 15, title: "On Beşinci Söz",    sections: ["Yedi Basamak"] },
+      { id: "on-altinci-soz",   num: 16, title: "On Altıncı Söz",    sections: ["Dört Şua","Zeyil"] },
+      { id: "on-yedinci-soz",   num: 17, title: "On Yedinci Söz",    sections: ["Birinci Makam","İkinci Makam"] },
+      { id: "on-sekizinci-soz", num: 18, title: "On Sekizinci Söz",  sections: [] },
+      { id: "on-dokuzuncu-soz", num: 19, title: "On Dokuzuncu Söz",  sections: ["On Yedi Reşha"] },
+      { id: "yirminci-soz",     num: 20, title: "Yirminci Söz",      sections: ["Birinci Makam","İkinci Makam"] },
+      { id: "yirmi-birinci-soz",num: 21, title: "Yirmi Birinci Söz", sections: ["Birinci Makam (Beş İkaz)","İkinci Makam (Beş Vecih)"] },
+      { id: "yirmi-ikinci-soz", num: 22, title: "Yirmi İkinci Söz",  sections: ["Birinci Makam (On İki Burhan)","İkinci Makam (On İki Lem'a)"] },
+      { id: "yirmi-ucuncu-soz", num: 23, title: "Yirmi Üçüncü Söz", sections: ["Birinci Makam (Beş Nokta)","İkinci Makam (Beş Nükte)"] },
+      { id: "yirmi-dorduncu-soz",num:24, title: "Yirmi Dördüncü Söz",sections: ["Beş Dal"] },
+      { id: "yirmi-besinci-soz", num:25, title: "Yirmi Beşinci Söz", sections: ["Üç Şule","Zeyiller"] },
+      { id: "yirmi-altinci-soz", num:26, title: "Yirmi Altıncı Söz", sections: ["Dört Mebhas","Zeyil"] },
+      { id: "yirmi-yedinci-soz", num:27, title: "Yirmi Yedinci Söz", sections: ["Zeyil (Dört Hatve)"] },
+      { id: "yirmi-sekizinci-soz",num:28,title: "Yirmi Sekizinci Söz",sections: ["Zeyil"] },
+      { id: "yirmi-dokuzuncu-soz",num:29,title: "Yirmi Dokuzuncu Söz",sections: ["Birinci Maksat","İkinci Maksat"] },
+      { id: "otuzuncu-soz",      num:30, title: "Otuzuncu Söz",      sections: ["Birinci Maksat (Ene)","İkinci Maksat (Zerre)"] },
+      { id: "otuz-birinci-soz",  num:31, title: "Otuz Birinci Söz",  sections: ["Dört Esas"] },
+      { id: "otuz-ikinci-soz",   num:32, title: "Otuz İkinci Söz",   sections: ["Birinci Mevkıf","İkinci Mevkıf","Üçüncü Mevkıf"] },
+      { id: "otuz-ucuncu-soz",   num:33, title: "Otuz Üçüncü Söz",   sections: ["Otuz Üç Pencere"] },
+      { id: "lemaat",            num:34, title: "Lemaat",             sections: [] },
+    ]
+  }
+];
+
+let currentBookId    = "sozler";
+let currentChapterId = "birinci-soz";
+
+/* ══════════════════════════════════════════
+   SENTENCE DATA
+══════════════════════════════════════════ */
+const CHAPTER_DATA = {
+  "birinci-soz": {
+    title: "Birinci Söz",
+    sub: "The First Word — Sözler · Said Nursi",
+    sentences: []
+  }
+};
+
+BOOKS[0].chapters.forEach(ch => {
+  if (!CHAPTER_DATA[ch.id]) {
+    CHAPTER_DATA[ch.id] = { title: ch.title, sub: `Sözler · Said Nursi — Chapter ${ch.num}`, sentences: [] };
+  }
+});
+
+/* ══════════════════════════════════════════
+   STORAGE  (localStorage fallback + Firestore sync)
+══════════════════════════════════════════ */
+const LS_KEY_PREFIX = "parallelText_";
+function lsKey(id) { return LS_KEY_PREFIX + id; }
+
+// Load from localStorage first (instant), then Firestore will update if available
+function loadSentences(id) {
+  try {
+    const raw = localStorage.getItem(lsKey(id));
+    if (raw) { const p = JSON.parse(raw); if (Array.isArray(p) && p.length > 0) return p; }
+  } catch(e) {}
+  const def = CHAPTER_DATA[id];
+  return def ? JSON.parse(JSON.stringify(def.sentences)) : [];
+}
+
+// Save to both localStorage AND Firestore
+function saveSentences(id, arr) {
+  localStorage.setItem(lsKey(id), JSON.stringify(arr));
+  if (window.db) {
+    window.db.collection("sentences").doc(id).set({ data: arr })
+      .catch(e => console.error("Firestore save error:", e));
+  }
+}
+
+// Load sentences from Firestore for a chapter and update the UI
+function loadSentencesFromFirestore(id) {
+  if (!window.db) return;
+  window.db.collection("sentences").doc(id).get().then(doc => {
+    if (doc.exists) {
+      const arr = doc.data().data;
+      if (Array.isArray(arr) && arr.length > 0) {
+        localStorage.setItem(lsKey(id), JSON.stringify(arr));
+        if (id === currentChapterId) {
+          sentences = arr;
+          renderPage(true);
+          if (document.getElementById("reading-mode-overlay").classList.contains("open")) {
+            renderReadingMode();
+          }
+        }
+      }
+    }
+  }).catch(e => console.error("Firestore load error:", e));
+}
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let sentences    = loadSentences(currentChapterId);
+let currentPage  = 0;
+const PAGE_SIZE  = 5;
+let layoutMode   = "side-by-side"; // "side-by-side" or "stacked"
+// Per-language font state
+let ottomanFontFamily = "Noto Naskh Arabic";
+let ottomanFontSize   = 20;
+let soraniFontFamily  = "Noto Naskh Arabic";
+let soraniFontSize    = 20;
+let turkishFontFamily = "Crimson Pro";
+let turkishFontSize   = 18;
+
+const LANG_META = {
+  ottoman: { label: "Ottoman", color: "#534AB7", rtl: true  },
+  sorani:  { label: "Sorani",  color: "#0F6E56", rtl: true  },
+  turkish: { label: "Turkish", color: "#993C1D", rtl: false },
+};
+const LANGS = ["ottoman", "sorani", "turkish"];
+
+const popup       = document.getElementById("word-popup");
+const popupContent= document.getElementById("popup-content");
+const cmsOverlay  = document.getElementById("cms-modal-overlay");
+const savedTag    = document.getElementById("cms-saved-tag");
+
+/* ══════════════════════════════════════════
+   APPLY FONT SETTINGS (CSS vars on root)
+══════════════════════════════════════════ */
+function applyFontSettings() {
+  const root = document.documentElement;
+  root.style.setProperty("--ottoman-font-family", `'${ottomanFontFamily}', serif`);
+  root.style.setProperty("--ottoman-font-size", ottomanFontSize + "px");
+  root.style.setProperty("--sorani-font-family",  `'${soraniFontFamily}', serif`);
+  root.style.setProperty("--sorani-font-size", soraniFontSize + "px");
+  root.style.setProperty("--turkish-font-family", `'${turkishFontFamily}', Georgia, serif`);
+  root.style.setProperty("--turkish-font-size", turkishFontSize + "px");
+  // Keep legacy vars for popup
+  root.style.setProperty("--arabic-font-size", ottomanFontSize + "px");
+  root.style.setProperty("--latin-font-family", `'${turkishFontFamily}', Georgia, serif`);
+  root.style.setProperty("--latin-font-size", turkishFontSize + "px");
+  // Sync displays
+  document.getElementById("display-ottoman-font").textContent = ottomanFontSize + "px";
+  document.getElementById("display-sorani-font").textContent  = soraniFontSize  + "px";
+  document.getElementById("display-turkish-font").textContent = turkishFontSize  + "px";
+  document.getElementById("select-font-ottoman").value = ottomanFontFamily;
+  document.getElementById("select-font-sorani").value  = soraniFontFamily;
+  document.getElementById("select-font-turkish").value = turkishFontFamily;
+}
+applyFontSettings();
+
+/* ══════════════════════════════════════════
+   THEME
+══════════════════════════════════════════ */
+let isDark = localStorage.getItem("theme") === "dark";
+
+function applyTheme() {
+  document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+  const iconEl = document.getElementById("btn-theme-icon");
+  const label  = document.getElementById("btn-theme-label");
+  const pill   = document.getElementById("btn-theme");
+  if (iconEl) {
+    iconEl.innerHTML = isDark
+      ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+      : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    iconEl.classList.toggle("icon-sun",  isDark);
+    iconEl.classList.toggle("icon-moon", !isDark);
+  }
+  if (label) label.textContent = isDark ? "Light mode" : "Dark mode";
+  if (pill)  pill.classList.toggle("active", isDark);
+}
+applyTheme();
+
+document.getElementById("btn-theme").addEventListener("click", () => {
+  isDark = !isDark;
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+  applyTheme();
+  scheduleSaveSettings();
+});
+
+/* ══════════════════════════════════════════
+   SIDEBAR TOGGLE
+══════════════════════════════════════════ */
+let sidebarOpen = false; // collapsed by default
+const sidebarEl = document.getElementById("sidebar");
+const sidebarToggleBtn = document.getElementById("btn-sidebar-toggle");
+const mainEl = document.getElementById("main");
+const readingOverlay = document.getElementById("reading-mode-overlay");
+
+function applySidebar() {
+  sidebarEl.classList.toggle("collapsed", !sidebarOpen);
+  sidebarToggleBtn.setAttribute("aria-expanded", sidebarOpen);
+  sidebarToggleBtn.textContent = sidebarOpen ? "✕" : "☰";
+  // Keep #main and reading overlay in sync with sidebar width
+  const isMobile = window.innerWidth <= 600;
+  if (isMobile) {
+    mainEl.style.marginLeft = "";
+    readingOverlay.style.left = "";
+  } else {
+    const w = sidebarOpen ? "260px" : "0px";
+    mainEl.style.marginLeft = w;
+    readingOverlay.style.left = w;
+  }
+}
+applySidebar();
+
+sidebarToggleBtn.addEventListener("click", () => {
+  sidebarOpen = !sidebarOpen;
+  applySidebar();
+});
+
+/* ══════════════════════════════════════════
+   LAYOUT TOGGLE (single button)
+══════════════════════════════════════════ */
+const btnLayoutToggle = document.getElementById("btn-layout-toggle");
+function applyLayoutToggleUI() {
+  const iconEl = document.getElementById("btn-layout-icon");
+  const label  = document.getElementById("btn-layout-label");
+  const pill   = document.getElementById("btn-layout-toggle");
+  const isSide = layoutMode === "side-by-side";
+  // Side-by-side: two vertical columns; Stacked: horizontal rows
+  if (iconEl) iconEl.innerHTML = isSide
+    ? '<rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/>'
+    : '<rect x="3" y="3" width="18" height="7" rx="1"/><rect x="3" y="14" width="18" height="7" rx="1"/>';
+  if (label) label.textContent = isSide ? "Side by side" : "Stacked";
+  if (pill)  pill.classList.toggle("active", isSide);
+  btnLayoutToggle.title = isSide ? "Switch to stacked" : "Switch to side-by-side";
+}
+btnLayoutToggle.addEventListener("click", () => {
+  layoutMode = layoutMode === "side-by-side" ? "stacked" : "side-by-side";
+  applyLayoutToggleUI();
+  renderPage();
+  scheduleSaveSettings();
+});
+
+/* ══════════════════════════════════════════
+   SETTINGS RIGHT SIDEBAR
+══════════════════════════════════════════ */
+const settingsSidebar = document.getElementById("settings-sidebar");
+const settingsBackdrop = document.getElementById("settings-overlay-backdrop");
+
+function openSettings() {
+  settingsSidebar.classList.add("open");
+  settingsBackdrop.classList.add("open");
+  // Close reflections if open
+  document.getElementById("reflections-sidebar").classList.remove("open");
+  document.getElementById("btn-reflections-open").classList.remove("active");
+}
+function closeSettings() {
+  settingsSidebar.classList.remove("open");
+  settingsBackdrop.classList.remove("open");
+}
+
+document.getElementById("btn-settings").addEventListener("click", e => {
+  e.stopPropagation();
+  if (settingsSidebar.classList.contains("open")) closeSettings();
+  else openSettings();
+});
+document.getElementById("settings-sidebar-close").addEventListener("click", closeSettings);
+settingsBackdrop.addEventListener("click", closeSettings);
+
+// Reflections header button — chapter-level resources
+document.getElementById("btn-reflections-open").addEventListener("click", e => {
+  e.stopPropagation();
+  const reflSidebar = document.getElementById("reflections-sidebar");
+  if (reflSidebar.classList.contains("open") && !currentReflSentenceId) {
+    // already showing chapter reflections — close
+    closeReflections();
+  } else if (reflSidebar.classList.contains("open") && currentReflSentenceId) {
+    // was showing sentence reflections — switch to chapter
+    openChapterReflections();
+  } else {
+    openChapterReflections();
+  }
+});
+
+function openChapterReflections() {
+  currentReflSentenceId = null;
+  const sidebar = document.getElementById("reflections-sidebar");
+  closeSettings();
+  sidebar.classList.add("open");
+  document.getElementById("btn-reflections-open").classList.add("active");
+  const chData = CHAPTER_DATA[currentChapterId];
+  document.getElementById("refl-sentence-label").textContent = "· " + (chData ? chData.title : currentChapterId);
+  renderReflBody("chapter_" + currentChapterId);
+}
+
+/* Collapsible sections */
+document.querySelectorAll(".lang-font-expand-btn").forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const targetId = btn.dataset.target;
+    const body = document.getElementById(targetId);
+    if (!body) return;
+    const isOpen = body.classList.contains("open");
+    body.classList.toggle("open", !isOpen);
+    btn.classList.toggle("open", !isOpen);
+  });
+});
+document.querySelectorAll(".settings-collapse-btn[data-target]:not(.lang-font-expand-btn)").forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const targetId = btn.dataset.target;
+    const body = document.getElementById(targetId);
+    if (!body) return;
+    const isOpen = body.classList.contains("open");
+    body.classList.toggle("open", !isOpen);
+    btn.classList.toggle("open", !isOpen);
+  });
+});
+
+/* Per-language font family */
+document.getElementById("select-font-ottoman").addEventListener("change", function() {
+  ottomanFontFamily = this.value; applyFontSettings(); scheduleSaveSettings();
+});
+document.getElementById("select-font-sorani").addEventListener("change", function() {
+  soraniFontFamily = this.value; applyFontSettings(); scheduleSaveSettings();
+});
+document.getElementById("select-font-turkish").addEventListener("change", function() {
+  turkishFontFamily = this.value; applyFontSettings(); scheduleSaveSettings();
+});
+
+/* Per-language font size */
+document.getElementById("btn-ottoman-font-inc").addEventListener("click", () => { ottomanFontSize = Math.min(36, ottomanFontSize + 1); applyFontSettings(); scheduleSaveSettings(); });
+document.getElementById("btn-ottoman-font-dec").addEventListener("click", () => { ottomanFontSize = Math.max(12, ottomanFontSize - 1); applyFontSettings(); scheduleSaveSettings(); });
+document.getElementById("btn-sorani-font-inc").addEventListener("click",  () => { soraniFontSize  = Math.min(36, soraniFontSize  + 1); applyFontSettings(); scheduleSaveSettings(); });
+document.getElementById("btn-sorani-font-dec").addEventListener("click",  () => { soraniFontSize  = Math.max(12, soraniFontSize  - 1); applyFontSettings(); scheduleSaveSettings(); });
+document.getElementById("btn-turkish-font-inc").addEventListener("click", () => { turkishFontSize = Math.min(32, turkishFontSize + 1); applyFontSettings(); scheduleSaveSettings(); });
+document.getElementById("btn-turkish-font-dec").addEventListener("click", () => { turkishFontSize = Math.max(10, turkishFontSize - 1); applyFontSettings(); scheduleSaveSettings(); });
+
+/* ══════════════════════════════════════════
+   ADMIN AUTH
+══════════════════════════════════════════ */
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "yahakeem2026"; // change as needed
+let isAdmin = false;
+let currentReflSentenceId = null;
+
+function applyAdminUI() {
+  document.getElementById("btn-add-sentence").style.display = isAdmin ? "" : "none";
+  document.getElementById("btn-reset-data").style.display   = isAdmin ? "" : "none";
+  document.getElementById("btn-admin-login").style.display  = isAdmin ? "none" : "";
+  document.getElementById("btn-admin-logout").style.display = isAdmin ? "" : "none";
+  const label = document.getElementById("cms-bar-label");
+  label.innerHTML = isAdmin
+    ? `<span class="cms-bar-admin-badge">🔓 Admin</span>`
+    : "Admin";
+  // Re-render to show/hide edit options in three-dot menus
+  renderPage();
+  // Refresh reflections panel if open (to show/hide admin controls)
+  if (currentReflSentenceId &&
+      document.getElementById("reflections-sidebar").classList.contains("open")) {
+    renderReflBody(currentReflSentenceId);
+  }
+}
+
+const adminOverlay = document.getElementById("admin-login-overlay");
+document.getElementById("btn-admin-login").addEventListener("click", () => {
+  document.getElementById("admin-username").value = "";
+  document.getElementById("admin-password").value = "";
+  document.getElementById("admin-error").textContent = "";
+  const statusEl = document.getElementById("admin-google-status");
+  if (statusEl) statusEl.textContent = "";
+  adminOverlay.classList.add("open");
+  setTimeout(() => document.getElementById("admin-username").focus(), 80);
+});
+function closeAdminLogin() { adminOverlay.classList.remove("open"); }
+document.getElementById("btn-admin-cancel").addEventListener("click", closeAdminLogin);
+adminOverlay.addEventListener("click", e => { if (e.target === adminOverlay) closeAdminLogin(); });
+
+document.getElementById("btn-pw-toggle").addEventListener("click", () => {
+  const inp = document.getElementById("admin-password");
+  inp.type = inp.type === "password" ? "text" : "password";
+});
+
+function attemptLogin() {
+  const u = document.getElementById("admin-username").value.trim();
+  const p = document.getElementById("admin-password").value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    isAdmin = true;
+    closeAdminLogin();
+    applyAdminUI();
+  } else {
+    document.getElementById("admin-error").textContent = "Incorrect username or password.";
+    document.getElementById("admin-password").value = "";
+    document.getElementById("admin-password").focus();
+  }
+}
+document.getElementById("btn-admin-submit").addEventListener("click", attemptLogin);
+document.getElementById("admin-password").addEventListener("keydown", e => { if (e.key === "Enter") attemptLogin(); });
+document.getElementById("admin-username").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("admin-password").focus(); });
+
+document.getElementById("btn-admin-logout").addEventListener("click", () => {
+  isAdmin = false;
+  // If admin was signed in via Google, also sign out of Google
+  if (googleUser && ADMIN_GOOGLE_EMAILS.map(e => e.toLowerCase()).includes((googleUser.email || "").toLowerCase())) {
+    if (confirm("Sign out from Google account " + googleUser.email + " too?")) {
+      signOutGoogle();
+    }
+  }
+  applyAdminUI();
+});
+
+/* ══════════════════════════════════════════
+   LANG TOGGLE (individual buttons in settings)
+══════════════════════════════════════════ */
+let activeLangSet = new Set(["ottoman", "sorani", "turkish"]);
+
+function getActiveLangs() { return Array.from(activeLangSet); }
+
+function updateLangToggleBtn(btn) {
+  const lang = btn.dataset.lang;
+  const isActive = activeLangSet.has(lang);
+  const statusEl = btn.querySelector(".lang-toggle-status");
+  btn.setAttribute("aria-pressed", isActive);
+  if (statusEl) {
+    statusEl.textContent = isActive ? "Visible" : "Hidden";
+    statusEl.classList.toggle("active", isActive);
+  }
+}
+
+document.querySelectorAll(".lang-toggle-btn").forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const lang = btn.dataset.lang;
+    const currentlyActive = activeLangSet.has(lang);
+    if (currentlyActive && activeLangSet.size === 1) return; // keep at least one
+    if (currentlyActive) activeLangSet.delete(lang);
+    else activeLangSet.add(lang);
+    updateLangToggleBtn(btn);
+    renderPage();
+    clearHighlightsAndPopup();
+    if (document.getElementById("reading-mode-overlay").classList.contains("open")) {
+      // If "all" is selected in reading mode, re-render to reflect new visible langs
+      if (!readingModeLang) renderReadingMode();
+    }
+  });
+  updateLangToggleBtn(btn); // init state
+});
+
+/* ══════════════════════════════════════════
+   BUILD TOC
+══════════════════════════════════════════ */
+function buildTOC() {
+  const container = document.getElementById("sidebar-scroll");
+  container.innerHTML = "";
+  BOOKS.forEach(book => {
+    const bookEl = document.createElement("div");
+    bookEl.style.cssText = "padding:8px 16px 4px;font-family:'Spectral',serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);";
+    bookEl.textContent = book.title;
+    container.appendChild(bookEl);
+    book.chapters.forEach(ch => {
+      const chDiv = document.createElement("div");
+      chDiv.className = "toc-chapter";
+      const btn = document.createElement("button");
+      btn.className = "toc-chapter-btn" + (ch.id === currentChapterId ? " active" : "");
+      btn.dataset.chapterId = ch.id;
+      const hasSections = ch.sections.length > 0;
+      const isOpen = ch.id === currentChapterId && hasSections;
+      if (isOpen) btn.classList.add("open");
+      btn.innerHTML = `<span class="toc-chapter-num">${ch.num}.</span><span class="toc-chapter-name">${ch.title}</span>${hasSections ? `<span class="toc-chevron">▼</span>` : ""}`;
+      const sectionsEl = document.createElement("div");
+      sectionsEl.className = "toc-sections" + (isOpen ? " open" : "");
+      ch.sections.forEach(sec => {
+        const secBtn = document.createElement("button");
+        secBtn.className = "toc-section-btn";
+        secBtn.textContent = sec;
+        secBtn.addEventListener("click", () => navigateToChapter(book.id, ch.id));
+        sectionsEl.appendChild(secBtn);
+      });
+      btn.addEventListener("click", () => {
+        if (hasSections && ch.id === currentChapterId) {
+          const wasOpen = sectionsEl.classList.contains("open");
+          btn.classList.toggle("open", !wasOpen);
+          sectionsEl.classList.toggle("open", !wasOpen);
+        } else {
+          navigateToChapter(book.id, ch.id);
+          if (hasSections) { btn.classList.add("open"); sectionsEl.classList.add("open"); }
+        }
+      });
+      chDiv.appendChild(btn);
+      if (hasSections) chDiv.appendChild(sectionsEl);
+      container.appendChild(chDiv);
+    });
+  });
+}
+
+function navigateToChapter(bookId, chapterId) {
+  currentBookId    = bookId;
+  currentChapterId = chapterId;
+  sentences        = loadSentences(chapterId);
+  currentPage      = 0;
+  const chData = CHAPTER_DATA[chapterId];
+  document.getElementById("section-heading").textContent = chData.title;
+  document.getElementById("section-sub").textContent     = chData.sub;
+  const book = BOOKS.find(b => b.id === bookId);
+  const ch   = book.chapters.find(c => c.id === chapterId);
+  document.getElementById("breadcrumb").innerHTML = `<strong>${book.title}</strong> · ${ch.title}`;
+  buildTOC();
+  clearHighlightsAndPopup();
+  renderPage();
+  // Update reading mode if open
+  if (document.getElementById("reading-mode-overlay").classList.contains("open")) {
+    updateReadingChapterInfo();
+    renderReadingMode();
+  }
+  // Load latest sentences from Firestore (updates page if different)
+  loadSentencesFromFirestore(chapterId);
+  // If reflections sidebar is open showing chapter resources, refresh for new chapter
+  const reflSidebar = document.getElementById("reflections-sidebar");
+  if (reflSidebar.classList.contains("open") && !currentReflSentenceId) {
+    openChapterReflections();
+  }
+  // Auto-close sidebar on mobile
+  if (window.innerWidth <= 600) { sidebarOpen = false; applySidebar(); }
+}
+
+/* ══════════════════════════════════════════
+   RENDER PAGE — MERGED CARD PER SENTENCE
+══════════════════════════════════════════ */
+function renderPage(animate) {
+  const outer = document.getElementById("panels-outer");
+  outer.innerHTML = "";
+
+  const totalPages = Math.max(1, Math.ceil(sentences.length / PAGE_SIZE));
+  const start      = currentPage * PAGE_SIZE;
+  const pageItems  = sentences.slice(start, start + PAGE_SIZE);
+  const activeLangs = getActiveLangs();
+
+  if (pageItems.length === 0) {
+    outer.innerHTML = `<div style="padding:40px 20px;text-align:center;font-family:'Spectral',serif;font-size:13px;font-style:italic;color:var(--text-muted);">No sentences yet.<br>Use "+ Add Sentence" below.</div>`;
+  }
+
+  pageItems.forEach((sentence, relIdx) => {
+    const globalIdx = start + relIdx;
+    const block = document.createElement("div");
+    block.className = "sentence-block";
+    if (animate) { block.classList.add("anim-enter"); block.style.animationDelay = (relIdx * 0.04) + "s"; }
+    block.dataset.sentenceId = sentence.id;
+
+    // Sentence label
+    const label = document.createElement("div");
+    label.className = "sentence-label";
+    label.textContent = `Sentence ${globalIdx + 1}`;
+    block.appendChild(label);
+
+    // Merged card
+    const card = document.createElement("div");
+    card.className = "merged-card";
+
+    // ── Card header
+    const cardHeader = document.createElement("div");
+    cardHeader.className = "card-header";
+
+    const langPips = document.createElement("div");
+    langPips.className = "card-header-langs";
+    LANGS.forEach((lang, i) => {
+      if (!activeLangs.includes(lang)) return;
+      if (i > 0 && activeLangs.indexOf(lang) > 0) {
+        const sep = document.createElement("span");
+        sep.className = "lang-sep"; sep.textContent = "·";
+        langPips.appendChild(sep);
+      }
+      const pip = document.createElement("span");
+      pip.className = `lang-pip ${lang}`;
+      langPips.appendChild(pip);
+      const lbl = document.createElement("span");
+      lbl.className = "lang-pip-label";
+      lbl.textContent = LANG_META[lang].label;
+      langPips.appendChild(lbl);
+    });
+
+    // Three-dot menu
+    const menuWrapper = document.createElement("div");
+    menuWrapper.className = "card-menu-wrapper";
+    const threeDot = document.createElement("button");
+    threeDot.className = "card-three-dot";
+    threeDot.innerHTML = "⋯";
+    threeDot.setAttribute("aria-label", "Card options");
+    const dropdown = document.createElement("div");
+    dropdown.className = "card-dropdown";
+
+    const actions = [
+      { icon: "📋", label: "Copy",        action: () => copyCard(sentence, activeLangs),         adminOnly: false },
+      { icon: "🔗", label: "Share",       action: () => shareCard(sentence, activeLangs),        adminOnly: false },
+      { icon: "💡", label: "Reflections", action: () => openReflections(sentence, globalIdx),    adminOnly: false },
+      { icon: "✏️", label: "Edit",        action: () => openInlineEdit(globalIdx, block),         adminOnly: true  },
+      { icon: "🗑️", label: "Delete",      action: () => deleteSentence(globalIdx),                adminOnly: true  },
+      { icon: "✉️", label: "Feedback",    action: () => openFeedback(),                           adminOnly: false },
+    ];
+    actions.filter(a => !a.adminOnly || isAdmin).forEach(a => {
+      const item = document.createElement("button");
+      item.className = "card-dropdown-item";
+      item.innerHTML = `<span class="di-icon">${a.icon}</span>${a.label}`;
+      item.addEventListener("click", () => {
+        dropdown.classList.remove("open");
+        a.action();
+      });
+      dropdown.appendChild(item);
+    });
+
+    threeDot.addEventListener("click", e => {
+      e.stopPropagation();
+      // close others
+      document.querySelectorAll(".card-dropdown.open").forEach(d => { if (d !== dropdown) d.classList.remove("open"); });
+      dropdown.classList.toggle("open");
+    });
+
+    menuWrapper.appendChild(threeDot);
+    menuWrapper.appendChild(dropdown);
+
+    cardHeader.appendChild(langPips);
+    cardHeader.appendChild(menuWrapper);
+    card.appendChild(cardHeader);
+
+    // ── Language sections (stacked inside merged card)
+    LANGS.forEach(lang => {
+      const isActive = activeLangs.includes(lang);
+      const isRTL    = lang !== "turkish";
+
+      const section = document.createElement("div");
+      section.className = `card-lang-section section-${lang}${isActive ? "" : " hidden"}`;
+
+      // lang header
+      const langHeader = document.createElement("div");
+      langHeader.className = "card-lang-header";
+      langHeader.innerHTML = `
+        <div class="card-accent-bar"></div>
+        <span class="card-lang-title">${lang === "ottoman" ? "Ottoman Turkish" : lang === "sorani" ? "Sorani Kurdish" : "Turkish"}</span>
+        <span class="card-lang-script">${isRTL ? "RTL · Arabic script" : "LTR · Latin"}</span>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "card-lang-body";
+      body.dir = isRTL ? "rtl" : "ltr";
+      body.setAttribute("role", "region");
+      body.setAttribute("aria-label", LANG_META[lang].label + " text");
+
+      body.innerHTML = (sentence[lang] || []).map((w, i) =>
+        w !== null
+          ? `<span class="word" data-lang="${lang}" data-word-index="${i}" data-sentence-id="${sentence.id}" tabindex="0" role="button" aria-label="${LANG_META[lang].label} word: ${w}">${w}</span>`
+          : `<span class="word" data-lang="${lang}" data-word-index="${i}" data-sentence-id="${sentence.id}" style="opacity:0.25" aria-hidden="true">—</span>`
+      ).join(" ");
+
+      section.appendChild(langHeader);
+      section.appendChild(body);
+
+      // In side-by-side mode wrap in columns (use flex row on the card sections wrapper)
+      card.appendChild(section);
+    });
+
+    // Side-by-side: make card display flex row
+    if (layoutMode === "side-by-side") {
+      card.style.cssText = "display:flex;flex-direction:column;"; // keep stacked inside, side-by-side handled via sections-wrapper
+      // Actually, wrap language sections in a flex container for side-by-side
+      const sectionsWrapper = document.createElement("div");
+      sectionsWrapper.style.cssText = "display:flex;flex-direction:row;";
+
+      // Move lang sections into wrapper
+      LANGS.forEach(lang => {
+        const sec = card.querySelector(`.section-${lang}`);
+        if (sec) {
+          sectionsWrapper.appendChild(sec);
+          // Add vertical dividers
+          sec.style.flex = "1";
+          sec.style.borderBottom = "none";
+          if (lang !== "turkish") sec.style.borderRight = "1px solid var(--border-light)";
+        }
+      });
+      card.appendChild(sectionsWrapper);
+
+      // Responsive: on mobile collapse to stacked
+      const mq = window.matchMedia("(max-width: 700px)");
+      const applyMQ = () => {
+        sectionsWrapper.style.flexDirection = mq.matches ? "column" : "row";
+        LANGS.forEach(lang => {
+          const sec = sectionsWrapper.querySelector(`.section-${lang}`);
+          if (!sec) return;
+          if (mq.matches) {
+            sec.style.borderRight = "none";
+            sec.style.borderBottom = lang !== "turkish" ? "1px solid var(--border-light)" : "none";
+          } else {
+            sec.style.borderBottom = "none";
+            if (lang !== "turkish") sec.style.borderRight = "1px solid var(--border-light)";
+          }
+        });
+      };
+      applyMQ();
+      mq.addEventListener("change", applyMQ);
+    }
+
+    block.appendChild(card);
+    outer.appendChild(block);
+  });
+
+  // Page counter
+  document.getElementById("page-counter").textContent =
+    `Page ${currentPage + 1} of ${totalPages}  ·  ${start + 1}–${Math.min(start + PAGE_SIZE, sentences.length)} of ${sentences.length}`;
+  document.getElementById("btn-prev-page").disabled = currentPage === 0;
+  document.getElementById("btn-next-page").disabled = currentPage >= totalPages - 1;
+}
+
+/* ══════════════════════════════════════════
+   CARD ACTIONS
+══════════════════════════════════════════ */
+function copyCard(sentence, activeLangs) {
+  const lines = [];
+  activeLangs.forEach(lang => {
+    const words = (sentence[lang] || []).filter(w => w !== null);
+    if (words.length) lines.push(`${LANG_META[lang].label}: ${words.join(" ")}`);
+  });
+  const text = lines.join("\n");
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(() => showToast("Copied!")) : showToast("Copy not supported");
+}
+
+function shareCard(sentence, activeLangs) {
+  const lines = [];
+  activeLangs.forEach(lang => {
+    const words = (sentence[lang] || []).filter(w => w !== null);
+    if (words.length) lines.push(`${LANG_META[lang].label}: ${words.join(" ")}`);
+  });
+  const text = lines.join("\n");
+  if (navigator.share) {
+    navigator.share({ title: "Ya Hakeem — Risale-i Nur", text }).catch(() => {});
+  } else {
+    copyCard(sentence, activeLangs);
+    showToast("Link copied!");
+  }
+}
+
+/* Simple toast */
+function showToast(msg) {
+  let t = document.getElementById("toast-el");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "toast-el";
+    t.style.cssText = "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--text-primary);color:var(--bg-primary);font-family:'Spectral',serif;font-size:13px;font-style:italic;padding:7px 18px;border-radius:20px;z-index:99999;opacity:0;transition:opacity 0.25s;pointer-events:none;";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = "1";
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => { t.style.opacity = "0"; }, 1800);
+}
+
+/* Close all card dropdowns on outside click */
+document.addEventListener("click", e => {
+  if (!e.target.closest(".card-menu-wrapper")) {
+    document.querySelectorAll(".card-dropdown.open").forEach(d => d.classList.remove("open"));
+  }
+});
+
+/* ══════════════════════════════════════════
+   DELETE SENTENCE (admin)
+══════════════════════════════════════════ */
+function deleteSentence(idx) {
+  if (!confirm("Delete this sentence?")) return;
+  sentences.splice(idx, 1);
+  saveSentences(currentChapterId, sentences);
+  if (currentPage > 0 && currentPage >= Math.ceil(sentences.length / PAGE_SIZE)) currentPage--;
+  renderPage(true);
+  showSavedTag();
+}
+
+/* ══════════════════════════════════════════
+   INLINE EDIT CARD (admin)
+══════════════════════════════════════════ */
+function openInlineEdit(globalIdx, sentenceBlock) {
+  document.querySelectorAll(".edit-card-overlay").forEach(el => el.remove());
+
+  const sentence = sentences[globalIdx];
+  const editor = document.createElement("div");
+  editor.className = "edit-card-overlay";
+
+  // Header
+  const hdr = document.createElement("div");
+  hdr.className = "edit-card-header";
+  hdr.innerHTML = `<span class="edit-card-title">✏️ Edit Sentence ${globalIdx + 1}</span>`;
+  const acts = document.createElement("div");
+  acts.className = "edit-card-actions";
+  const saveBtn   = document.createElement("button"); saveBtn.className = "edit-save-btn";   saveBtn.textContent = "Save";
+  const cancelBtn = document.createElement("button"); cancelBtn.className = "edit-cancel-btn"; cancelBtn.textContent = "Cancel";
+  acts.appendChild(cancelBtn); acts.appendChild(saveBtn);
+  hdr.appendChild(acts);
+  editor.appendChild(hdr);
+
+  // Per-language collapsible sections
+  const langDefs = [
+    { key: "ottoman", label: "Ottoman Turkish", color: "var(--panel-ottoman-accent)", rtl: true  },
+    { key: "sorani",  label: "Sorani Kurdish",  color: "var(--panel-sorani-accent)",  rtl: true  },
+    { key: "turkish", label: "Turkish",          color: "var(--panel-turkish-accent)", rtl: false },
+  ];
+  const textareas = {};
+
+  langDefs.forEach(ld => {
+    const sec = document.createElement("div");
+    sec.className = "edit-lang-section";
+    const tog = document.createElement("button");
+    tog.className = "edit-lang-toggle";
+    tog.innerHTML = `<span class="dot" style="background:${ld.color}"></span>${ld.label}<span class="edit-lang-chevron">▼</span>`;
+    const body = document.createElement("div");
+    body.className = "edit-lang-body";
+    const ta = document.createElement("textarea");
+    ta.className = "edit-lang-textarea" + (ld.rtl ? " rtl-input" : "");
+    ta.dir = ld.rtl ? "rtl" : "ltr";
+    ta.spellcheck = false; ta.rows = 2;
+    ta.placeholder = "Space-separated words…";
+    ta.value = (sentence[ld.key] || []).join(" ");
+    textareas[ld.key] = ta;
+    const preview = document.createElement("div");
+    preview.className = "edit-token-preview cms-token-preview";
+    const updatePreview = () => {
+      const tokens = ta.value.trim().split(/\s+/).filter(Boolean);
+      preview.innerHTML = tokens.map((t,i) => `<span class="cms-token"><span class="idx">${i}:</span>${t}</span>`).join("");
+    };
+    ta.addEventListener("input", updatePreview);
+    updatePreview();
+    body.appendChild(ta); body.appendChild(preview);
+    tog.addEventListener("click", () => { const o = body.classList.toggle("open"); tog.classList.toggle("open", o); });
+    sec.appendChild(tog); sec.appendChild(body);
+    editor.appendChild(sec);
+  });
+
+  // Word mapping collapsible
+  const mapSec = document.createElement("div");
+  mapSec.className = "edit-mapping-section";
+  const mapTog = document.createElement("button");
+  mapTog.className = "edit-mapping-toggle";
+  mapTog.innerHTML = `Word Mapping <span style="font-style:normal;font-size:10px;opacity:.6;margin-left:4px">optional</span><span class="edit-mapping-chevron">▼</span>`;
+  const mapBody = document.createElement("div");
+  mapBody.className = "edit-mapping-body";
+
+  const mapHint = document.createElement("p");
+  mapHint.className = "cms-mapping-hint"; mapHint.textContent = "Each row links one word across all three languages by index.";
+  mapBody.appendChild(mapHint);
+  const mapRowsEl = document.createElement("div");
+  mapBody.appendChild(mapRowsEl);
+
+  let editMapCount = 0;
+  function addEditMapRow(init) {
+    editMapCount++;
+    const emptyMsg = mapRowsEl.querySelector(".mapping-row-empty");
+    if (emptyMsg) emptyMsg.remove();
+    const row = document.createElement("div");
+    row.className = "mapping-row";
+    [{ key:"ottoman", color:"var(--panel-ottoman-accent)", label:"Ottoman" },
+     { key:"sorani",  color:"var(--panel-sorani-accent)",  label:"Sorani"  },
+     { key:"turkish", color:"var(--panel-turkish-accent)", label:"Turkish" }].forEach(lc => {
+      const inner = document.createElement("div");
+      inner.className = "mapping-row-inner";
+      inner.innerHTML = `<span class="mapping-row-label"><span class="dot" style="background:${lc.color}"></span>${lc.label}</span>
+        <input type="text" class="mapping-index-input" data-lang="${lc.key}" placeholder="null" autocomplete="off" spellcheck="false"/>
+        <div class="mapping-input-error"></div>`;
+      if (init && init[lc.key] !== null && init[lc.key] !== undefined)
+        inner.querySelector("input").value = String(init[lc.key]);
+      row.appendChild(inner);
+    });
+    const rm = document.createElement("button");
+    rm.className = "mapping-remove-btn"; rm.textContent = "✕";
+    rm.addEventListener("click", () => {
+      row.remove();
+      if (!mapRowsEl.querySelectorAll(".mapping-row").length)
+        mapRowsEl.innerHTML = `<p class="mapping-row-empty">No mapping rows yet.</p>`;
+    });
+    row.appendChild(rm);
+    mapRowsEl.appendChild(row);
+  }
+
+  if (sentence.wordMap && sentence.wordMap.length) sentence.wordMap.forEach(e => addEditMapRow(e));
+  else mapRowsEl.innerHTML = `<p class="mapping-row-empty">No mapping rows yet.</p>`;
+
+  const addRowBtn = document.createElement("button");
+  addRowBtn.className = "cms-btn"; addRowBtn.style.marginTop = "8px"; addRowBtn.textContent = "+ Add Mapping Row";
+  addRowBtn.addEventListener("click", () => addEditMapRow(null));
+  mapBody.appendChild(addRowBtn);
+
+  mapTog.addEventListener("click", () => { const o = mapBody.classList.toggle("open"); mapTog.classList.toggle("open", o); });
+  mapSec.appendChild(mapTog); mapSec.appendChild(mapBody);
+  editor.appendChild(mapSec);
+
+  sentenceBlock.insertAdjacentElement("afterend", editor);
+  editor.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  saveBtn.addEventListener("click", () => {
+    const ott = textareas.ottoman.value.trim().split(/\s+/).filter(Boolean);
+    const sor = textareas.sorani.value.trim().split(/\s+/).filter(Boolean);
+    const tur = textareas.turkish.value.trim().split(/\s+/).filter(Boolean);
+    if (!ott.length && !sor.length && !tur.length) { alert("Enter at least one word."); return; }
+    const wordMap = [];
+    mapRowsEl.querySelectorAll(".mapping-row").forEach(row => {
+      const entry = {};
+      row.querySelectorAll(".mapping-index-input").forEach(inp => {
+        const v = inp.value.trim();
+        entry[inp.dataset.lang] = (v === "" || v === "null") ? null : parseInt(v, 10);
+      });
+      wordMap.push(entry);
+    });
+    sentences[globalIdx] = { ...sentence, ottoman: ott, sorani: sor, turkish: tur, wordMap };
+    saveSentences(currentChapterId, sentences);
+    editor.remove();
+    renderPage(true);
+    showSavedTag();
+  });
+  cancelBtn.addEventListener("click", () => editor.remove());
+}
+
+/* ══════════════════════════════════════════
+   FEEDBACK MODAL
+══════════════════════════════════════════ */
+const fbOverlay = document.getElementById("feedback-overlay");
+
+function openFeedback() {
+  document.getElementById("fb-name").value = "";
+  document.getElementById("fb-email").value = "";
+  document.getElementById("fb-phone").value = "";
+  document.getElementById("fb-body").value = "";
+  document.getElementById("fb-success").classList.remove("visible");
+  fbOverlay.classList.add("open");
+}
+function closeFeedback() { fbOverlay.classList.remove("open"); }
+
+document.getElementById("fb-close-btn").addEventListener("click", closeFeedback);
+document.getElementById("fb-cancel-btn").addEventListener("click", closeFeedback);
+fbOverlay.addEventListener("click", e => { if (e.target === fbOverlay) closeFeedback(); });
+
+document.getElementById("fb-submit-btn").addEventListener("click", () => {
+  const name  = document.getElementById("fb-name").value.trim();
+  const email = document.getElementById("fb-email").value.trim();
+  const body  = document.getElementById("fb-body").value.trim();
+  if (!body) { document.getElementById("fb-body").focus(); return; }
+
+  // Show success
+  document.getElementById("fb-success").classList.add("visible");
+  document.getElementById("fb-submit-btn").disabled = true;
+  setTimeout(() => {
+    closeFeedback();
+    document.getElementById("fb-submit-btn").disabled = false;
+  }, 1800);
+});
+
+/* ══════════════════════════════════════════
+   HIGHLIGHTS & POPUP
+══════════════════════════════════════════ */
+function clearHighlightsAndPopup() {
+  document.querySelectorAll(".word.highlight-clicked, .word.highlight-linked").forEach(el => {
+    el.classList.remove("highlight-clicked", "highlight-linked");
+  });
+  popup.classList.remove("visible");
+}
+
+function findWordMapEntry(sentence, lang, wordIndex) {
+  return (sentence.wordMap || []).find(e => e[lang] === wordIndex) || null;
+}
+
+function positionPopup(anchorEl) {
+  const rect = anchorEl.getBoundingClientRect();
+  const pw = popup.offsetWidth || 220;
+  const ph = popup.offsetHeight || 140;
+  const margin = 12;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const sy = window.scrollY || 0, sx = window.scrollX || 0;
+  let top  = rect.bottom + sy + 8;
+  let left = rect.left + sx + rect.width / 2 - pw / 2;
+  if (rect.bottom + ph + margin + 8 > vh) top = rect.top + sy - ph - 8;
+  top  = Math.max(sy + margin, top);
+  left = Math.max(sx + margin, left);
+  if (left + pw + margin > sx + vw) left = sx + vw - pw - margin;
+  popup.style.top  = top  + "px";
+  popup.style.left = left + "px";
+}
+
+function showWordPopup(clickedEl) {
+  const lang      = clickedEl.dataset.lang;
+  const wordIndex = parseInt(clickedEl.dataset.wordIndex, 10);
+  const sid       = parseInt(clickedEl.dataset.sentenceId, 10);
+  const sentence  = sentences.find(s => s.id === sid);
+  if (!sentence) return;
+  const entry = findWordMapEntry(sentence, lang, wordIndex);
+  clearHighlightsAndPopup();
+  clickedEl.classList.add("highlight-clicked");
+  if (!entry) {
+    popupContent.innerHTML = `<p class="popup-no-mapping">No mapping found</p>`;
+    popup.classList.add("visible");
+    requestAnimationFrame(() => positionPopup(clickedEl));
+    return;
+  }
+  LANGS.forEach(l => {
+    if (l === lang) return;
+    const idx = entry[l];
+    if (idx !== null && idx !== undefined) {
+      const targetEl = document.querySelector(`[data-sentence-id="${sid}"] .word[data-lang="${l}"][data-word-index="${idx}"]`);
+      if (targetEl) targetEl.classList.add("highlight-linked");
+    }
+  });
+  const rows = LANGS.filter(l => l !== lang).map(l => {
+    const meta = LANG_META[l];
+    const idx  = entry[l];
+    const arr  = sentence[l];
+    let word   = null;
+    if (idx !== null && idx !== undefined && arr && arr[idx] !== null) word = arr[idx];
+    const wHtml = word !== null
+      ? `<span class="popup-word ${meta.rtl ? "rtl" : ""}">${word}</span>`
+      : `<span class="popup-word null-word">—</span>`;
+    return `<div class="popup-row">
+      <span class="popup-lang-dot" style="background:${meta.color}"></span>
+      <span class="popup-lang-label">${meta.label}</span>${wHtml}</div>`;
+  }).join("");
+  popupContent.innerHTML = rows;
+  popup.classList.add("visible");
+  requestAnimationFrame(() => positionPopup(clickedEl));
+}
+
+/* ══════════════════════════════════════════
+   WORD INTERACTIONS
+══════════════════════════════════════════ */
+const panelsOuter = document.getElementById("panels-outer");
+
+panelsOuter.addEventListener("click", e => {
+  const w = e.target.closest(".word"); if (!w) return;
+  e.stopPropagation();
+  if (w.classList.contains("highlight-clicked")) { clearHighlightsAndPopup(); return; }
+  showWordPopup(w);
+});
+panelsOuter.addEventListener("keydown", e => {
+  if (e.key === "Enter" || e.key === " ") {
+    const w = e.target.closest(".word"); if (!w) return;
+    e.preventDefault(); showWordPopup(w);
+  }
+});
+document.addEventListener("click", e => {
+  if (e.target.closest("#word-popup")) return;
+  if (e.target.closest(".word")) return;
+  clearHighlightsAndPopup();
+});
+
+/* ══════════════════════════════════════════
+   KEYBOARD NAV
+══════════════════════════════════════════ */
+document.addEventListener("keydown", e => {
+  const tag = document.activeElement && document.activeElement.tagName;
+  const isTyping = tag === "INPUT" || tag === "TEXTAREA" || document.activeElement.isContentEditable;
+  if (e.key === "Escape") {
+    if (popup.classList.contains("visible")) { clearHighlightsAndPopup(); return; }
+    if (cmsOverlay.classList.contains("open")) { closeModal(); return; }
+    if (fbOverlay.classList.contains("open")) { closeFeedback(); return; }
+  }
+  if (isTyping) return;
+  const totalPages = Math.ceil(sentences.length / PAGE_SIZE);
+  if (e.key === "ArrowLeft" && currentPage > 0) { e.preventDefault(); currentPage--; clearHighlightsAndPopup(); renderPage(true); }
+  else if (e.key === "ArrowRight" && currentPage < totalPages - 1) { e.preventDefault(); currentPage++; clearHighlightsAndPopup(); renderPage(true); }
+});
+
+/* ══════════════════════════════════════════
+   PAGINATION
+══════════════════════════════════════════ */
+document.getElementById("btn-prev-page").addEventListener("click", () => {
+  if (currentPage > 0) { currentPage--; clearHighlightsAndPopup(); renderPage(true); }
+});
+document.getElementById("btn-next-page").addEventListener("click", () => {
+  const totalPages = Math.ceil(sentences.length / PAGE_SIZE);
+  if (currentPage < totalPages - 1) { currentPage++; clearHighlightsAndPopup(); renderPage(true); }
+});
+
+/* ══════════════════════════════════════════
+   CMS MODAL — AI-ASSISTED
+══════════════════════════════════════════ */
+const GEMINI_KEY_LS = "yahakeem_gemini_key";
+
+function getGeminiKey() {
+  return document.getElementById("input-gemini-key").value.trim() ||
+         localStorage.getItem(GEMINI_KEY_LS) || "";
+}
+
+function openModal() {
+  ["ottoman","turkish"].forEach(lang => {
+    document.getElementById("input-" + lang).value = "";
+    renderTokenPreview(lang, []);
+  });
+  // sorani preview reset
+  const sorPrev = document.getElementById("preview-sorani");
+  if (sorPrev) sorPrev.innerHTML = "";
+  const sorInput = document.getElementById("input-sorani");
+  if (sorInput) sorInput.value = "";
+
+  clearMappingRows();
+  document.getElementById("cms-mapping-global-error").textContent = "";
+  document.getElementById("cms-step-input").style.display = "";
+  document.getElementById("cms-step-review").style.display = "none";
+
+  // Load saved key
+  const savedKey = localStorage.getItem(GEMINI_KEY_LS) || "";
+  document.getElementById("input-gemini-key").value = savedKey ? "●".repeat(16) : "";
+  document.getElementById("input-gemini-key").dataset.savedKey = savedKey;
+
+  const keyHint = document.getElementById("gemini-key-hint");
+  keyHint.textContent = savedKey ? "✓ Key loaded from browser storage" : "";
+  keyHint.className = "gemini-key-hint" + (savedKey ? " ok" : "");
+
+  document.getElementById("ai-status").textContent = "";
+  document.getElementById("ai-status").className = "ai-status";
+
+  cmsOverlay.classList.add("open");
+  document.getElementById("input-ottoman").focus();
+}
+
+function closeModal() {
+  cmsOverlay.classList.remove("open");
+  document.getElementById("btn-add-sentence").focus();
+  // Reset step 2
+  document.getElementById("cms-step-review").style.display = "none";
+  clearMappingRows();
+  // Reset all CMS lang collapsibles (openModal will re-open Ottoman+Turkish on next open)
+  document.querySelectorAll(".cms-lang-collapse-body").forEach(b => b.classList.remove("open"));
+  document.querySelectorAll(".cms-lang-collapse-btn").forEach(b => b.classList.remove("open"));
+  // Clear input fields
+  ["ottoman","turkish","sorani"].forEach(lang => {
+    const el = document.getElementById("input-" + lang);
+    if (el) el.value = "";
+    renderTokenPreview(lang, []);
+  });
+  document.getElementById("ai-status").textContent = "";
+  document.getElementById("ai-status").className = "ai-status";
+}
+
+/* Gemini key save/show toggle */
+document.getElementById("btn-gemini-key-save").addEventListener("click", () => {
+  const inp = document.getElementById("input-gemini-key");
+  const raw = inp.value.trim();
+  const actual = raw.startsWith("●") ? (inp.dataset.savedKey || "") : raw;
+  if (!actual || !actual.startsWith("AIza")) {
+    const h = document.getElementById("gemini-key-hint");
+    h.textContent = "Key must start with AIza…"; h.className = "gemini-key-hint err"; return;
+  }
+  localStorage.setItem(GEMINI_KEY_LS, actual);
+  inp.dataset.savedKey = actual;
+  const h = document.getElementById("gemini-key-hint");
+  h.textContent = "✓ Key saved to browser storage"; h.className = "gemini-key-hint ok";
+});
+
+document.getElementById("btn-gemini-key-toggle").addEventListener("click", () => {
+  const inp = document.getElementById("input-gemini-key");
+  const btn = document.getElementById("btn-gemini-key-toggle");
+  if (inp.type === "password") { inp.type = "text"; btn.textContent = "Hide"; }
+  else { inp.type = "password"; btn.textContent = "Show"; }
+});
+
+/* Resolve actual key (handles masked display) */
+function resolveGeminiKey() {
+  const inp = document.getElementById("input-gemini-key");
+  const raw = inp.value.trim();
+  if (raw.startsWith("●")) return inp.dataset.savedKey || localStorage.getItem(GEMINI_KEY_LS) || "";
+  return raw;
+}
+
+/* ── GEMINI CALL ── */
+async function callGemini(ottomanWords, turkishWords) {
+  const key = resolveGeminiKey();
+  if (!key) throw new Error("No Gemini API key provided.");
+
+  const prompt = `You are a Sorani Kurdish (Central Kurdish) linguist and translator specializing in Islamic texts, specifically Risale-i Nur by Said Nursi.
+
+I have an Ottoman Turkish sentence given as an ordered list of words, and its Turkish translation also as an ordered list of words. The Ottoman and Turkish lists are already word-for-word aligned.
+
+Ottoman words (${ottomanWords.length} words):
+${ottomanWords.map((w, i) => `  [${i}] ${w}`).join("\n")}
+
+Turkish words (${turkishWords.length} words):
+${turkishWords.map((w, i) => `  [${i}] ${w}`).join("\n")}
+
+Your task:
+1. Translate the sentence into Sorani Kurdish as a list of individual words (space-separated, right-to-left script). Produce a natural Sorani translation that preserves the meaning and register of Risale-i Nur. Each word should be a single token.
+2. Produce a word mapping table that links each word across Ottoman, Sorani, and Turkish by their 0-based indices. Where a word has no counterpart in a language, use null. A single Sorani word may map to multiple Ottoman/Turkish words or vice versa — in that case represent each separately.
+
+Respond ONLY with a valid JSON object, no markdown, no explanation, in exactly this format:
+{
+  "sorani": ["word0", "word1", ...],
+  "wordMap": [
+    {"ottoman": 0, "sorani": 0, "turkish": 0},
+    {"ottoman": 1, "sorani": null, "turkish": 1},
+    ...
+  ]
+}`;
+
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+      })
+    }
+  );
+
+  if (!resp.ok) {
+    let errMsg = `Gemini API error ${resp.status}`;
+    try {
+      const err = await resp.json();
+      if (err?.error?.message) errMsg = err.error.message;
+      else if (resp.status === 400) errMsg = "Bad request — check your API key is valid and the Gemini API is enabled in Google Cloud.";
+      else if (resp.status === 403) errMsg = "Access denied (403) — make sure the Gemini API is enabled for your key at console.cloud.google.com";
+      else if (resp.status === 429) errMsg = "Rate limit exceeded (429) — wait a moment and try again.";
+    } catch(e) {}
+    throw new Error(errMsg);
+  }
+
+  const data = await resp.json();
+  const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  // Strip all possible markdown fence variants robustly
+  const clean = raw.replace(/^```[\w]*\s*/i, "").replace(/\s*```\s*$/, "").trim();
+  let parsed;
+  try { parsed = JSON.parse(clean); }
+  catch(e) {
+    // Try extracting JSON object if wrapped in extra text
+    const match = clean.match(/\{[\s\S]*\}/);
+    if (match) { try { parsed = JSON.parse(match[0]); } catch(e2) {} }
+    if (!parsed) throw new Error("Could not parse Gemini response as JSON. Raw: " + clean.slice(0, 120));
+  }
+
+  if (!Array.isArray(parsed.sorani)) throw new Error("Missing sorani array in response.");
+  if (!Array.isArray(parsed.wordMap)) throw new Error("Missing wordMap array in response.");
+  return parsed;
+}
+
+/* ── AI Translate button ── */
+document.getElementById("btn-ai-translate").addEventListener("click", async () => {
+  const ottomanTokens = tokenize(document.getElementById("input-ottoman").value);
+  const turkishTokens = tokenize(document.getElementById("input-turkish").value);
+  if (!ottomanTokens.length) {
+    document.getElementById("ai-status").textContent = "Enter Ottoman text first.";
+    document.getElementById("ai-status").className = "ai-status error"; return;
+  }
+  if (!turkishTokens.length) {
+    document.getElementById("ai-status").textContent = "Enter Turkish text first.";
+    document.getElementById("ai-status").className = "ai-status error"; return;
+  }
+
+  const key = resolveGeminiKey();
+  if (!key) {
+    document.getElementById("ai-status").innerHTML = `<span>Enter your Gemini API key above first.</span>`;
+    document.getElementById("ai-status").className = "ai-status error"; return;
+  }
+
+  const btn = document.getElementById("btn-ai-translate");
+  const statusEl = document.getElementById("ai-status");
+  btn.disabled = true;
+  statusEl.className = "ai-status";
+  statusEl.innerHTML = `<span class="ai-spinner"></span> Asking Gemini…`;
+
+  try {
+    const result = await callGemini(ottomanTokens, turkishTokens);
+
+    // Populate Sorani (join RTL words with space)
+    const soraniJoined = result.sorani.join(" ");
+    const soraniInput = document.getElementById("input-sorani");
+    soraniInput.value = soraniJoined;
+    renderTokenPreview("sorani", result.sorani);
+    validateAllMappingRows(result.sorani.length, "sorani");
+
+    // Populate mapping rows
+    clearMappingRows();
+    result.wordMap.forEach(entry => {
+      addMappingRow();
+      const rows = document.querySelectorAll("#cms-mapping-rows .mapping-row");
+      const lastRow = rows[rows.length - 1];
+      ["ottoman","sorani","turkish"].forEach(lang => {
+        const inp = lastRow.querySelector(`.mapping-index-input[data-lang="${lang}"]`);
+        if (inp) inp.value = (entry[lang] !== null && entry[lang] !== undefined) ? String(entry[lang]) : "";
+      });
+    });
+
+    // Show review step
+    document.getElementById("cms-step-review").style.display = "";
+    // Auto-open collapsibles in step 2
+    ["cms-lang-body-sorani","cms-mapping-body"].forEach(id => {
+      const body = document.getElementById(id);
+      const btn  = document.querySelector(`.cms-lang-collapse-btn[data-target="${id}"]`);
+      if (body)  body.classList.add("open");
+      if (btn)   btn.classList.add("open");
+    });
+    statusEl.className = "ai-status";
+    statusEl.textContent = "";
+    document.getElementById("input-sorani").scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  } catch(err) {
+    statusEl.className = "ai-status error";
+    statusEl.textContent = "⚠ " + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+/* Re-generate button */
+document.getElementById("btn-ai-redo").addEventListener("click", () => {
+  document.getElementById("cms-step-review").style.display = "none";
+  document.getElementById("btn-ai-translate").click();
+});
+
+function tokenize(str) { return str.trim().split(/\s+/).filter(Boolean); }
+function renderTokenPreview(lang, tokens) {
+  const el = document.getElementById("preview-" + lang);
+  if (!el) return;
+  el.innerHTML = tokens.length === 0 ? "" : tokens.map((t,i) => `<span class="cms-token"><span class="idx">${i}:</span>${t}</span>`).join("");
+}
+["ottoman","turkish"].forEach(lang => {
+  document.getElementById("input-" + lang).addEventListener("input", function() {
+    const tokens = tokenize(this.value);
+    renderTokenPreview(lang, tokens);
+    validateAllMappingRows(tokens.length, lang);
+  });
+});
+document.getElementById("input-sorani").addEventListener("input", function() {
+  const tokens = tokenize(this.value);
+  renderTokenPreview("sorani", tokens);
+  validateAllMappingRows(tokens.length, "sorani");
+});
+
+function showSavedTag() {
+  savedTag.classList.add("visible");
+  setTimeout(() => savedTag.classList.remove("visible"), 2000);
+}
+function getNextId() {
+  if (!sentences.length) return 1;
+  return Math.max(...sentences.map(s => s.id)) + 1;
+}
+
+let mappingRowCount = 0;
+function clearMappingRows() { document.getElementById("cms-mapping-rows").innerHTML = ""; mappingRowCount = 0; }
+function getTokenCount(lang) { return tokenize(document.getElementById("input-" + lang).value).length; }
+function validateMappingInput(input, lang) {
+  const val = input.value.trim();
+  const errorEl = input.closest(".mapping-row-inner").querySelector(".mapping-input-error");
+  if (val === "" || val === "null") { input.classList.remove("invalid","valid"); if (errorEl) errorEl.textContent = ""; return true; }
+  const num = Number(val);
+  if (!Number.isInteger(num) || num < 0 || String(num) !== val) {
+    input.classList.add("invalid"); input.classList.remove("valid");
+    if (errorEl) errorEl.textContent = "Must be integer ≥ 0 or null"; return false;
+  }
+  const count = getTokenCount(lang);
+  if (count > 0 && num >= count) {
+    input.classList.add("invalid"); input.classList.remove("valid");
+    if (errorEl) errorEl.textContent = `Max index is ${count - 1}`; return false;
+  }
+  input.classList.remove("invalid"); input.classList.add("valid");
+  if (errorEl) errorEl.textContent = ""; return true;
+}
+function validateAllMappingRows(_, changedLang) {
+  document.querySelectorAll("#cms-mapping-rows .mapping-row").forEach(row => {
+    const input = row.querySelector(`.mapping-index-input[data-lang="${changedLang}"]`);
+    if (input) validateMappingInput(input, changedLang);
+  });
+}
+function addMappingRow() {
+  const container = document.getElementById("cms-mapping-rows");
+  const emptyMsg = container.querySelector(".mapping-row-empty");
+  if (emptyMsg) emptyMsg.remove();
+  const rowId = ++mappingRowCount;
+  const row = document.createElement("div");
+  row.className = "mapping-row"; row.dataset.rowId = rowId;
+  [{ key:"ottoman", label:"Ottoman", color:"var(--panel-ottoman-accent)" },
+   { key:"sorani",  label:"Sorani",  color:"var(--panel-sorani-accent)"  },
+   { key:"turkish", label:"Turkish", color:"var(--panel-turkish-accent)" }].forEach(lc => {
+    const inner = document.createElement("div");
+    inner.className = "mapping-row-inner";
+    inner.innerHTML = `<span class="mapping-row-label"><span class="dot" style="background:${lc.color}"></span>${lc.label}</span>
+      <input type="text" class="mapping-index-input" data-lang="${lc.key}" placeholder="null" autocomplete="off" spellcheck="false"/>
+      <div class="mapping-input-error"></div>`;
+    const input = inner.querySelector("input");
+    input.addEventListener("input", () => validateMappingInput(input, lc.key));
+    input.addEventListener("blur",  () => validateMappingInput(input, lc.key));
+    row.appendChild(inner);
+  });
+  const rmBtn = document.createElement("button");
+  rmBtn.className = "mapping-remove-btn"; rmBtn.title = "Remove"; rmBtn.textContent = "✕";
+  rmBtn.addEventListener("click", () => {
+    row.remove();
+    if (!document.querySelectorAll("#cms-mapping-rows .mapping-row").length)
+      container.innerHTML = `<p class="mapping-row-empty">No mapping rows yet.</p>`;
+  });
+  row.appendChild(rmBtn);
+  container.appendChild(row);
+}
+function parseMappingValue(val) {
+  const t = val.trim();
+  if (t === "" || t === "null") return null;
+  const n = Number(t);
+  if (Number.isInteger(n) && n >= 0 && String(n) === t) return n;
+  return undefined;
+}
+function collectMappingRows() {
+  const rows = document.querySelectorAll("#cms-mapping-rows .mapping-row");
+  const result = []; let hasError = false;
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll(".mapping-index-input");
+    const entry = {};
+    inputs.forEach(input => {
+      const lang = input.dataset.lang;
+      const parsed = parseMappingValue(input.value);
+      if (parsed === undefined) { hasError = true; } else { entry[lang] = parsed; }
+    });
+    LANGS.forEach(lang => {
+      if (entry[lang] !== null && entry[lang] !== undefined) {
+        const count = getTokenCount(lang);
+        if (count > 0 && entry[lang] >= count) hasError = true;
+      }
+    });
+    if (!hasError) result.push(entry);
+  });
+  return { wordMap: result, hasError };
+}
+document.getElementById("btn-add-mapping-row").addEventListener("click", addMappingRow);
+document.getElementById("cms-save-btn").addEventListener("click", () => {
+  const ottomanTokens = tokenize(document.getElementById("input-ottoman").value);
+  const soraniTokens  = tokenize(document.getElementById("input-sorani").value);
+  const turkishTokens = tokenize(document.getElementById("input-turkish").value);
+  const globalErrorEl = document.getElementById("cms-mapping-global-error");
+  if (!ottomanTokens.length && !soraniTokens.length && !turkishTokens.length) { alert("Please enter at least one word."); return; }
+  let valid = true;
+  document.querySelectorAll(".mapping-index-input").forEach(input => { if (!validateMappingInput(input, input.dataset.lang)) valid = false; });
+  if (!valid) { globalErrorEl.textContent = "Fix mapping errors first."; return; }
+  const { wordMap, hasError } = collectMappingRows();
+  if (hasError) { globalErrorEl.textContent = "Some mapping rows have invalid values."; return; }
+  globalErrorEl.textContent = "";
+  sentences.push({ id: getNextId(), ottoman: ottomanTokens, sorani: soraniTokens, turkish: turkishTokens, wordMap });
+  saveSentences(currentChapterId, sentences);
+  currentPage = Math.floor((sentences.length - 1) / PAGE_SIZE);
+  renderPage(true);
+  closeModal();
+  showSavedTag();
+});
+document.getElementById("cms-cancel-btn").addEventListener("click", closeModal);
+document.getElementById("cms-modal-close-btn").addEventListener("click", closeModal);
+document.getElementById("btn-add-sentence").addEventListener("click", openModal);
+cmsOverlay.addEventListener("click", e => { if (e.target === cmsOverlay) closeModal(); });
+/* CMS modal collapsible language sections */
+document.querySelectorAll(".cms-lang-collapse-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const body = document.getElementById(btn.dataset.target);
+    if (!body) return;
+    const isOpen = body.classList.contains("open");
+    body.classList.toggle("open", !isOpen);
+    btn.classList.toggle("open", !isOpen);
+  });
+});
+
+document.getElementById("btn-reset-data").addEventListener("click", () => {
+  if (!confirm("Reset to default data?")) return;
+  localStorage.removeItem(lsKey(currentChapterId));
+  sentences   = loadSentences(currentChapterId);
+  currentPage = 0;
+  renderPage(true);
+  showSavedTag();
+});
+
+/* ══════════════════════════════════════════
+   BACK TO TOP
+══════════════════════════════════════════ */
+const btnBackToTop = document.getElementById("btn-back-to-top");
+
+const shellEl = document.getElementById("shell");
+
+shellEl.addEventListener("scroll", () => {
+  btnBackToTop.classList.toggle("visible", shellEl.scrollTop > 200);
+});
+btnBackToTop.addEventListener("click", () => {
+  shellEl.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+buildTOC();
+renderPage(true);
+applyLayoutToggleUI();
+applyAdminUI(); // init admin state (logged out by default)
+
+// Keep reading overlay and main margin in sync on resize
+window.addEventListener("resize", () => { applySidebar(); });
+
+/* ══════════════════════════════════════════
+   FIREBASE INIT
+══════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyCXJfLwtrI7em4Luf_zLpvXMhSyt79KhCk",
+  authDomain:        "yahakeemrisale-59cb2.firebaseapp.com",
+  projectId:         "yahakeemrisale-59cb2",
+  storageBucket:     "yahakeemrisale-59cb2.firebasestorage.app",
+  messagingSenderId: "832235504266",
+  appId:             "1:832235504266:web:82e5e990e1151cdda1a373"
+};
+
+function initFirebase() {
+  if (typeof firebase === "undefined") {
+    // Firebase compat scripts not yet loaded — retry shortly
+    setTimeout(initFirebase, 100);
+    return;
+  }
+  try {
+    firebase.initializeApp(firebaseConfig);
+  } catch(e) {
+    // Already initialized (e.g. hot-reload) — ignore
+  }
+  window.db   = firebase.firestore();
+  window.auth = firebase.auth();
+  window.fbUser = null;
+
+  /* ══════════════════════════════════════════
+     GOOGLE AUTH  (via Firebase) — moved inside initFirebase
+  ══════════════════════════════════════════ */
+  window.auth.onAuthStateChanged(user => {
+    window.fbUser = user;
+    if (user) {
+      googleUser = { name: user.displayName, email: user.email, picture: user.photoURL, sub: user.uid };
+      localStorage.setItem("yhGoogle", JSON.stringify(googleUser));
+      updateGoogleLoginBtn();
+      loadUserSettingsFromFirestore();
+      if (document.getElementById("reflections-sidebar").classList.contains("open")) {
+        renderReflBody(currentReflSentenceId);
+      }
+    } else {
+      googleUser = null;
+      localStorage.removeItem("yhGoogle");
+      updateGoogleLoginBtn();
+    }
+  });
+
+  // Kick off Firestore load now that db is ready
+  loadSentencesFromFirestore(currentChapterId);
+}
+
+initFirebase();
+window.fbUser = null;
+
+/* ══════════════════════════════════════════
+   GOOGLE AUTH  (via Firebase)
+══════════════════════════════════════════ */
+const GOOGLE_CLIENT_ID = "193149525627-7c7169t6j77iljgp2ju5fao629n80lkg.apps.googleusercontent.com";
+const ADMIN_GOOGLE_EMAILS = ["rzgartmi@gmail.com"];
+
+let googleUser = null;
+
+function signInWithGoogle(context) {
+  if (!window.auth) { showToast("Auth not ready, try again"); return; }
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  window.auth.signInWithPopup(provider).then(result => {
+    const email = result.user.email || "";
+    const isAdminEmail = ADMIN_GOOGLE_EMAILS.map(e => e.toLowerCase()).includes(email.toLowerCase());
+    if (context === "admin") {
+      if (isAdminEmail) {
+        isAdmin = true;
+        closeAdminLogin();
+        applyAdminUI();
+        showToast("✓ Admin access granted · " + (result.user.displayName || "").split(" ")[0]);
+      } else {
+        const statusEl = document.getElementById("admin-google-status");
+        if (statusEl) statusEl.textContent = "⚠ " + email + " is not an admin account.";
+      }
+    } else {
+      showToast("Signed in as " + (result.user.displayName || "").split(" ")[0]);
+    }
+  }).catch(err => {
+    if (err.code !== "auth/popup-closed-by-user") {
+      showToast("Sign-in failed — check popup is not blocked");
+    }
+  });
+}
+
+function signOutGoogle() {
+  const wasAdmin = isAdmin;
+  window.auth.signOut().then(() => {
+    if (wasAdmin) { isAdmin = false; applyAdminUI(); }
+    showToast("Signed out");
+    if (document.getElementById("reflections-sidebar").classList.contains("open")) {
+      renderReflBody(currentReflSentenceId);
+    }
+  });
+}
+
+function updateGoogleLoginBtn() {
+  const btn   = document.getElementById("btn-google-login");
+  const label = document.getElementById("google-login-label");
+  if (!btn) return;
+  if (googleUser) {
+    btn.classList.add("signed-in");
+    const existing = btn.querySelector(".google-avatar");
+    if (existing) existing.remove();
+    if (googleUser.picture) {
+      const img = document.createElement("img");
+      img.className = "google-avatar"; img.src = googleUser.picture; img.alt = googleUser.name;
+      btn.insertBefore(img, label);
+      const icon = btn.querySelector(".google-icon"); if (icon) icon.remove();
+    }
+    label.textContent = (googleUser.name || "").split(" ")[0] || "Signed in";
+    btn.title = `${googleUser.name} · ${googleUser.email}\nClick to sign out`;
+  } else {
+    btn.classList.remove("signed-in");
+    const av = btn.querySelector(".google-avatar"); if (av) av.remove();
+    if (!btn.querySelector(".google-icon")) {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      svg.setAttribute("class","google-icon"); svg.setAttribute("viewBox","0 0 24 24"); svg.setAttribute("width","14"); svg.setAttribute("height","14");
+      svg.innerHTML = `<path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>`;
+      btn.insertBefore(svg, label);
+    }
+    label.textContent = "Sign in";
+    btn.title = "Sign in with Google";
+  }
+}
+
+// Header sign-in button
+document.getElementById("btn-google-login").addEventListener("click", () => {
+  if (googleUser) { if (confirm("Sign out from " + googleUser.email + "?")) signOutGoogle(); }
+  else signInWithGoogle("user");
+});
+
+// Admin modal Google button
+document.getElementById("btn-admin-google").addEventListener("click", () => {
+  signInWithGoogle("admin");
+});
+
+/* ══════════════════════════════════════════
+   USER SETTINGS SYNC
+══════════════════════════════════════════ */
+function getUserSettingsSnapshot() {
+  return {
+    theme: isDark ? "dark" : "light", layoutMode,
+    ottomanFontFamily, ottomanFontSize,
+    soraniFontFamily,  soraniFontSize,
+    turkishFontFamily, turkishFontSize,
+    activeLangs: Array.from(activeLangSet),
+  };
+}
+function applyUserSettings(s) {
+  if (!s) return;
+  if (s.theme) { isDark = s.theme === "dark"; localStorage.setItem("theme", s.theme); applyTheme(); }
+  if (s.layoutMode) { layoutMode = s.layoutMode; applyLayoutToggleUI(); }
+  if (s.ottomanFontFamily) ottomanFontFamily = s.ottomanFontFamily;
+  if (s.ottomanFontSize)   ottomanFontSize   = s.ottomanFontSize;
+  if (s.soraniFontFamily)  soraniFontFamily  = s.soraniFontFamily;
+  if (s.soraniFontSize)    soraniFontSize    = s.soraniFontSize;
+  if (s.turkishFontFamily) turkishFontFamily = s.turkishFontFamily;
+  if (s.turkishFontSize)   turkishFontSize   = s.turkishFontSize;
+  if (Array.isArray(s.activeLangs) && s.activeLangs.length) {
+    activeLangSet = new Set(s.activeLangs);
+    document.querySelectorAll(".lang-toggle-btn").forEach(btn => updateLangToggleBtn(btn));
+  }
+  applyFontSettings(); renderPage();
+}
+let _settingsSaveTimer = null;
+function scheduleSaveSettings() {
+  clearTimeout(_settingsSaveTimer);
+  _settingsSaveTimer = setTimeout(saveUserSettingsToFirestore, 1500);
+}
+function saveUserSettingsToFirestore() {
+  if (!window.db || !window.fbUser) return;
+  window.db.collection("userData").doc(window.fbUser.uid)
+    .set({ settings: getUserSettingsSnapshot() }, { merge: true })
+    .catch(e => console.error("Settings save error:", e));
+}
+function loadUserSettingsFromFirestore() {
+  if (!window.db || !window.fbUser) return;
+  window.db.collection("userData").doc(window.fbUser.uid).get().then(doc => {
+    if (doc.exists && doc.data().settings) {
+      applyUserSettings(doc.data().settings);
+      showToast("✓ Settings synced");
+    }
+  }).catch(e => console.error("Settings load error:", e));
+}
+
+/* ══════════════════════════════════════════
+   REFLECTIONS SYSTEM
+══════════════════════════════════════════ */
+// Data structure: reflections stored per sentence ID in Firestore
+const REFL_LS_KEY = "yhReflections_v1";
+
+function loadAllReflections() {
+  try { return JSON.parse(localStorage.getItem(REFL_LS_KEY) || "{}"); } catch(e) { return {}; }
+}
+function saveAllReflections(data) {
+  localStorage.setItem(REFL_LS_KEY, JSON.stringify(data));
+}
+function getReflForSentence(sentenceId) {
+  const all = loadAllReflections();
+  return all[sentenceId] || { resources: [], userReflections: {} };
+}
+function saveReflForSentence(sentenceId, data) {
+  // Save shared resources to Firestore (admin-written)
+  if (window.db) {
+    const shared = { resources: data.resources || [], questions: data.questions || [] };
+    window.db.collection("reflections").doc(String(sentenceId)).set(shared)
+      .catch(e => console.error("Firestore refl save error:", e));
+  }
+  // Save user reflections to their own Firestore doc
+  if (window.db && window.fbUser && data.userReflections) {
+    const uid = window.fbUser.uid;
+    const userData = (data.userReflections[uid]) || [];
+    window.db.collection("userData").doc(uid).set(
+      { [`reflections.${sentenceId}`]: userData },
+      { merge: true }
+    ).catch(e => console.error("Firestore user refl save error:", e));
+  }
+  // Also keep in localStorage as cache
+  const all = loadAllReflections();
+  all[sentenceId] = data;
+  saveAllReflections(all);
+}
+
+// Load shared reflections for a sentence from Firestore
+function loadReflFromFirestore(sentenceId, cb) {
+  if (!window.db) { cb(getReflForSentence(sentenceId)); return; }
+  const docId = String(sentenceId);
+  window.db.collection("reflections").doc(docId).get().then(doc => {
+    const cached = getReflForSentence(sentenceId);
+    if (doc.exists) {
+      const shared = doc.data();
+      cached.resources  = shared.resources  || [];
+      cached.questions  = shared.questions  || [];
+    }
+    // Load user's own reflections
+    if (window.fbUser) {
+      window.db.collection("userData").doc(window.fbUser.uid).get().then(udoc => {
+        if (udoc.exists) {
+          const ur = (udoc.data().reflections || {})[sentenceId] || [];
+          const sub = window.fbUser.uid;
+          cached.userReflections = cached.userReflections || {};
+          cached.userReflections[sub] = ur;
+        }
+        // Update cache
+        const all = loadAllReflections();
+        all[sentenceId] = cached;
+        saveAllReflections(all);
+        cb(cached);
+      }).catch(() => cb(cached));
+    } else {
+      const all = loadAllReflections();
+      all[sentenceId] = cached;
+      saveAllReflections(all);
+      cb(cached);
+    }
+  }).catch(() => cb(getReflForSentence(sentenceId)));
+}
+
+const RESOURCE_TYPES = [
+  { key: "paper",    label: "Papers",                  icon: "📄" },
+  { key: "video",    label: "Video Lectures",           icon: "🎬" },
+  { key: "audio",    label: "Audio Lectures",           icon: "🎧" },
+  { key: "risale",   label: "Related Risale Sentences", icon: "📖" },
+];
+
+let reflAdminAddingType   = null; // which type is being admin-added
+
+function openReflections(sentence, globalIdx) {
+  currentReflSentenceId = sentence.id;
+  const sidebar = document.getElementById("reflections-sidebar");
+  const chData = CHAPTER_DATA[currentChapterId];
+  const chTitle = chData ? chData.title : currentChapterId;
+  document.getElementById("refl-sentence-label").textContent = `· ${chTitle} · Sentence ${globalIdx + 1}`;
+  // Close settings sidebar if open
+  closeSettings();
+  renderReflBody(sentence.id);
+  sidebar.classList.add("open");
+  document.getElementById("btn-reflections-open").classList.add("active");
+}
+
+function closeReflections() {
+  document.getElementById("reflections-sidebar").classList.remove("open");
+  document.getElementById("btn-reflections-open").classList.remove("active");
+  currentReflSentenceId = null;
+}
+document.getElementById("refl-close").addEventListener("click", closeReflections);
+
+function renderReflBody(sentenceId) {
+  const body = document.getElementById("refl-body");
+  if (!sentenceId) { body.innerHTML = ""; return; }
+  // Show loading state briefly, then load from Firestore
+  body.innerHTML = `<div style="padding:20px;text-align:center;font-family:'Spectral',serif;font-size:12px;font-style:italic;color:var(--text-muted);">Loading…</div>`;
+  loadReflFromFirestore(sentenceId, (refl) => _renderReflBodyWith(sentenceId, refl));
+}
+
+function _renderReflBodyWith(sentenceId, refl) {
+  const body = document.getElementById("refl-body");
+  if (!body) return;
+  body.innerHTML = "";
+
+  // Admin "Add Resource" section
+  if (isAdmin) {
+    const adminSec = makeReflSection("➕ Add Resource (Admin)", "refl-admin-add", true);
+    const inner = adminSec.querySelector(".refl-section-inner");
+    inner.innerHTML = "";
+    const form = document.createElement("div");
+    form.className = "refl-admin-add-form";
+    form.innerHTML = `
+      <div class="refl-admin-row">
+        <select class="refl-admin-select" id="refl-admin-type">
+          ${RESOURCE_TYPES.map(t => `<option value="${t.key}">${t.icon} ${t.label}</option>`).join("")}
+        </select>
+      </div>
+      <input class="refl-admin-input" id="refl-admin-title" placeholder="Title / description" type="text">
+      <input class="refl-admin-input" id="refl-admin-url"   placeholder="URL (optional)"       type="url">
+      <input class="refl-admin-input" id="refl-admin-meta"  placeholder="Author / citation (optional)" type="text">
+      <div class="refl-form-row">
+        <button class="cms-btn primary" id="refl-admin-save">Add Resource</button>
+      </div>
+    `;
+    inner.appendChild(form);
+    body.appendChild(adminSec);
+
+    form.querySelector("#refl-admin-save").addEventListener("click", () => {
+      const type  = form.querySelector("#refl-admin-type").value;
+      const title = form.querySelector("#refl-admin-title").value.trim();
+      const url   = form.querySelector("#refl-admin-url").value.trim();
+      const meta  = form.querySelector("#refl-admin-meta").value.trim();
+      if (!title) { showToast("Title required"); return; }
+      const r = getReflForSentence(sentenceId);
+      r.resources = r.resources || [];
+      r.resources.push({ id: Date.now(), type, title, url, meta });
+      saveReflForSentence(sentenceId, r);
+      form.querySelector("#refl-admin-title").value = "";
+      form.querySelector("#refl-admin-url").value   = "";
+      form.querySelector("#refl-admin-meta").value  = "";
+      renderReflBody(sentenceId);
+      showToast("Resource added");
+    });
+  }
+
+  // Resource sections by type
+  RESOURCE_TYPES.forEach(rt => {
+    const items = (refl.resources || []).filter(r => r.type === rt.key);
+    const sec = makeReflSection(rt.icon + " " + rt.label, "refl-type-" + rt.key, items.length > 0);
+    const inner = sec.querySelector(".refl-section-inner");
+
+    if (items.length === 0) {
+      const empty = document.createElement("p");
+      empty.style.cssText = "font-family:'Spectral',serif;font-size:11px;font-style:italic;color:var(--text-muted);padding:4px 0;";
+      empty.textContent = "No resources added yet.";
+      inner.appendChild(empty);
+    } else {
+      items.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "refl-item";
+        el.innerHTML = `
+          <div class="refl-item-icon">${rt.icon}</div>
+          <div class="refl-item-body">
+            <div class="refl-item-title">${item.url ? `<a href="${item.url}" target="_blank" rel="noopener">${escHtml(item.title)}</a>` : escHtml(item.title)}</div>
+            ${item.meta ? `<div class="refl-item-meta">${escHtml(item.meta)}</div>` : ""}
+          </div>
+          ${isAdmin ? `<button class="refl-item-delete" data-id="${item.id}" title="Delete">✕</button>` : ""}
+        `;
+        if (isAdmin) {
+          el.querySelector(".refl-item-delete").addEventListener("click", () => {
+            const r = getReflForSentence(sentenceId);
+            r.resources = r.resources.filter(x => x.id !== item.id);
+            saveReflForSentence(sentenceId, r);
+            renderReflBody(sentenceId);
+            showToast("Removed");
+          });
+        }
+        inner.appendChild(el);
+      });
+    }
+    body.appendChild(sec);
+  });
+
+  // Questions section — always open by default
+  const qSec = makeReflSection("❓ Questions", "refl-questions", false);
+  const qInner = qSec.querySelector(".refl-section-inner");
+  const qItems = (refl.questions || []);
+
+  if (isAdmin) {
+    const qForm = document.createElement("div");
+    qForm.className = "refl-admin-add-form";
+    qForm.innerHTML = `
+      <input class="refl-admin-input" id="refl-q-title" placeholder="Question text" type="text">
+      <div class="refl-form-row">
+        <button class="cms-btn primary" id="refl-q-save">Add Question</button>
+      </div>
+    `;
+    qInner.appendChild(qForm);
+    qForm.querySelector("#refl-q-save").addEventListener("click", () => {
+      const title = qForm.querySelector("#refl-q-title").value.trim();
+      if (!title) { showToast("Question text required"); return; }
+      const r = getReflForSentence(sentenceId);
+      r.questions = r.questions || [];
+      r.questions.push({ id: Date.now(), title });
+      saveReflForSentence(sentenceId, r);
+      qForm.querySelector("#refl-q-title").value = "";
+      renderReflBody(sentenceId);
+      showToast("Question added");
+    });
+  }
+
+  if (qItems.length === 0 && !isAdmin) {
+    const empty = document.createElement("p");
+    empty.style.cssText = "font-family:'Spectral',serif;font-size:11px;font-style:italic;color:var(--text-muted);padding:4px 0;";
+    empty.textContent = "No questions yet.";
+    qInner.appendChild(empty);
+  } else {
+    qItems.forEach(item => {
+      const el = document.createElement("div");
+      el.className = "refl-item";
+      el.innerHTML = `
+        <div class="refl-item-icon">❓</div>
+        <div class="refl-item-body">
+          <div class="refl-item-title">${escHtml(item.title)}</div>
+        </div>
+        ${isAdmin ? `<button class="refl-item-delete" data-id="${item.id}" title="Delete">✕</button>` : ""}
+      `;
+      if (isAdmin) {
+        el.querySelector(".refl-item-delete").addEventListener("click", () => {
+          const r = getReflForSentence(sentenceId);
+          r.questions = r.questions.filter(x => x.id !== item.id);
+          saveReflForSentence(sentenceId, r);
+          renderReflBody(sentenceId);
+          showToast("Removed");
+        });
+      }
+      qInner.appendChild(el);
+    });
+  }
+  body.appendChild(qSec);
+
+  // My Reflections section — always open by default
+  const mySec = makeReflSection("🤲 My Reflections", "refl-mine", true);
+  const myInner = mySec.querySelector(".refl-section-inner");
+
+  if (!googleUser) {
+    const note = document.createElement("p");
+    note.className = "refl-login-note";
+    note.innerHTML = `Sign in with Google (top right) to add your own private reflections, saved in your browser.`;
+    myInner.appendChild(note);
+  } else {
+    const sub   = (window.fbUser && window.fbUser.uid) || googleUser.sub || googleUser.email;
+    const myItems = ((refl.userReflections || {})[sub]) || [];
+
+    // Add button / form
+    const addBtn = document.createElement("button");
+    addBtn.className = "refl-my-add-btn";
+    addBtn.innerHTML = `<span>+</span> Add a reflection or file URL`;
+    myInner.appendChild(addBtn);
+
+    const userForm = document.createElement("div");
+    userForm.className = "refl-user-form"; userForm.style.display = "none";
+    userForm.innerHTML = `
+      <textarea class="refl-user-textarea" id="refl-user-text" placeholder="Write your reflection…" rows="3"></textarea>
+      <input class="refl-admin-input" id="refl-user-url" type="url" placeholder="Google Drive file URL (optional)">
+      <div class="refl-form-row">
+        <button class="cms-btn" id="refl-user-cancel">Cancel</button>
+        <button class="cms-btn primary" id="refl-user-save">Save</button>
+      </div>
+    `;
+    myInner.appendChild(userForm);
+
+    addBtn.addEventListener("click", () => {
+      addBtn.style.display = "none"; userForm.style.display = "";
+      userForm.querySelector("#refl-user-text").focus();
+    });
+    userForm.querySelector("#refl-user-cancel").addEventListener("click", () => {
+      addBtn.style.display = ""; userForm.style.display = "none";
+      userForm.querySelector("#refl-user-text").value = "";
+      userForm.querySelector("#refl-user-url").value  = "";
+    });
+    userForm.querySelector("#refl-user-save").addEventListener("click", () => {
+      const text = userForm.querySelector("#refl-user-text").value.trim();
+      const url  = userForm.querySelector("#refl-user-url").value.trim();
+      if (!text && !url) { showToast("Add text or a URL"); return; }
+      const r = getReflForSentence(sentenceId);
+      r.userReflections = r.userReflections || {};
+      r.userReflections[sub] = r.userReflections[sub] || [];
+      r.userReflections[sub].push({ id: Date.now(), text, url, createdAt: new Date().toISOString() });
+      saveReflForSentence(sentenceId, r);
+      renderReflBody(sentenceId);
+      // Auto-open My Reflections section
+      const myBtn = document.querySelector("#refl-mine");
+      if (myBtn) { myBtn.classList.add("open"); const b = myBtn.nextElementSibling; if(b) b.classList.add("open"); }
+      showToast("Reflection saved");
+    });
+
+    // Existing user items
+    myItems.forEach(item => {
+      const el = document.createElement("div");
+      el.className = "refl-my-item";
+      const date = new Date(item.createdAt).toLocaleDateString();
+      el.innerHTML = `
+        ${item.text ? `<div class="refl-my-item-text">${escHtml(item.text)}</div>` : ""}
+        ${item.url  ? `<div class="refl-my-item-url"><a href="${item.url}" target="_blank" rel="noopener">📎 ${escHtml(item.url)}</a></div>` : ""}
+        <div class="refl-my-item-meta">${date}</div>
+        <div class="refl-my-item-actions">
+          <button class="refl-item-delete" data-id="${item.id}">✕ Delete</button>
+        </div>
+      `;
+      el.querySelector(".refl-item-delete").addEventListener("click", () => {
+        const r = getReflForSentence(sentenceId);
+        r.userReflections[sub] = r.userReflections[sub].filter(x => x.id !== item.id);
+        saveReflForSentence(sentenceId, r);
+        renderReflBody(sentenceId);
+      });
+      myInner.insertBefore(el, addBtn);
+    });
+  }
+  body.appendChild(mySec);
+}
+
+function makeReflSection(titleText, id, startOpen) {
+  const sec = document.createElement("div");
+  sec.className = "refl-section";
+  const btn = document.createElement("button");
+  btn.className = "refl-section-btn" + (startOpen ? " open" : "");
+  btn.id = id;
+  btn.innerHTML = `<span>${titleText}</span><span class="refl-section-chevron">▼</span>`;
+  const bodyDiv = document.createElement("div");
+  bodyDiv.className = "refl-section-body" + (startOpen ? " open" : "");
+  const inner = document.createElement("div");
+  inner.className = "refl-section-inner";
+  bodyDiv.appendChild(inner);
+  btn.addEventListener("click", () => {
+    const isOpen = bodyDiv.classList.contains("open");
+    bodyDiv.classList.toggle("open", !isOpen);
+    btn.classList.toggle("open", !isOpen);
+  });
+  sec.appendChild(btn); sec.appendChild(bodyDiv);
+  return sec;
+}
+
+function escHtml(str) {
+  return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ══════════════════════════════════════════
+   READING MODE
+══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   READING MODE
+══════════════════════════════════════════ */
+let readingModeLang = "sorani"; // default to Sorani Kurdish
+
+const LANG_DOT_COLORS = {
+  ottoman: 'var(--panel-ottoman-accent)',
+  sorani:  'var(--panel-sorani-accent)',
+  turkish: 'var(--panel-turkish-accent)',
+  all:     'var(--text-muted)',
+};
+const LANG_LABELS = {
+  ottoman: 'Ottoman Turkish',
+  sorani:  'Sorani Kurdish',
+  turkish: 'Turkish',
+  all:     'All languages',
+};
+
+function openReadingMode() {
+  const overlay = document.getElementById("reading-mode-overlay");
+  overlay.classList.add("open");
+  document.getElementById("btn-reading-mode").classList.add("active");
+  updateReadingChapterInfo();
+  renderReadingMode();
+  updateReadingDropdownUI();
+}
+
+function closeReadingMode() {
+  document.getElementById("reading-mode-overlay").classList.remove("open");
+  document.getElementById("btn-reading-mode").classList.remove("active");
+  document.getElementById("reading-lang-dropdown").classList.remove("open");
+  document.getElementById("reading-lang-select-btn").classList.remove("open");
+}
+
+function updateReadingChapterInfo() {
+  const chData = CHAPTER_DATA[currentChapterId];
+  const book = BOOKS.find(b => b.id === currentBookId);
+  document.getElementById("reading-chapter-title").textContent = chData ? chData.title : currentChapterId;
+  document.getElementById("reading-chapter-sub").textContent = book ? book.title + ' · Said Nursi' : '';
+}
+
+function updateReadingDropdownUI() {
+  const key = readingModeLang || 'all';
+  document.getElementById("reading-lang-btn-dot").style.background = LANG_DOT_COLORS[key];
+  document.getElementById("reading-lang-btn-label").textContent = LANG_LABELS[key];
+  document.querySelectorAll(".reading-lang-option").forEach(opt => {
+    opt.classList.toggle("selected", opt.dataset.lang === key);
+  });
+}
+
+function renderReadingMode() {
+  const langsToShow = readingModeLang
+    ? [readingModeLang]
+    : LANGS.filter(l => activeLangSet.has(l));
+
+  const block = document.getElementById("reading-text-block");
+  block.innerHTML = "";
+
+  if (sentences.length === 0) {
+    block.innerHTML = `<div style="font-family:'Spectral',serif;font-size:14px;font-style:italic;color:var(--text-muted);text-align:center;padding:40px 0;">No sentences yet.</div>`;
+    return;
+  }
+
+  langsToShow.forEach(lang => {
+    const isRTL = (lang === "ottoman" || lang === "sorani");
+    const langLabel = LANG_LABELS[lang] || lang;
+
+    const section = document.createElement("div");
+    section.className = `reading-lang-section reading-${lang}`;
+
+    const labelEl = document.createElement("div");
+    labelEl.className = "reading-lang-label";
+    labelEl.innerHTML = `<span class="reading-lang-bar"></span>${langLabel}`;
+    section.appendChild(labelEl);
+
+    const prose = document.createElement("div");
+    prose.className = "reading-prose";
+    prose.dir = isRTL ? "rtl" : "ltr";
+    prose.setAttribute("lang", lang === "ottoman" ? "ota" : lang === "sorani" ? "ckb" : "tr");
+
+    const parts = [];
+    sentences.forEach(sentence => {
+      const words = (sentence[lang] || []).filter(w => w !== null && w !== undefined);
+      if (words.length) parts.push(words.join(" "));
+    });
+
+    prose.innerHTML = parts.map((p, i) =>
+      i < parts.length - 1
+        ? escHtml(p) + `<span class="reading-sent-sep" aria-hidden="true">◆</span>`
+        : escHtml(p)
+    ).join(" ");
+
+    section.appendChild(prose);
+    block.appendChild(section);
+  });
+
+  // Build footer with prev/next chapter navigation
+  const footer = document.getElementById("reading-mode-footer");
+  const allChapters = BOOKS.flatMap(b => b.chapters.map(c => ({ bookId: b.id, chapterId: c.id, title: c.title })));
+  const currentIdx  = allChapters.findIndex(c => c.chapterId === currentChapterId);
+  const prevChap    = currentIdx > 0 ? allChapters[currentIdx - 1] : null;
+  const nextChap    = currentIdx < allChapters.length - 1 ? allChapters[currentIdx + 1] : null;
+
+  footer.innerHTML = "";
+
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "page-btn";
+  prevBtn.innerHTML = "&#8592; " + (prevChap ? prevChap.title : "");
+  prevBtn.disabled  = !prevChap;
+  prevBtn.title     = prevChap ? prevChap.title : "";
+  prevBtn.addEventListener("click", () => {
+    if (prevChap) navigateToChapter(prevChap.bookId, prevChap.chapterId);
+  });
+
+  const info = document.createElement("span");
+  info.style.cssText = "flex:1;text-align:center;";
+  info.textContent = `${sentences.length} sentence${sentences.length !== 1 ? "s" : ""} · ${langsToShow.map(l => LANG_LABELS[l] || l).join(" · ")}`;
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "page-btn";
+  nextBtn.innerHTML = (nextChap ? nextChap.title : "") + " &#8594;";
+  nextBtn.disabled  = !nextChap;
+  nextBtn.title     = nextChap ? nextChap.title : "";
+  nextBtn.addEventListener("click", () => {
+    if (nextChap) navigateToChapter(nextChap.bookId, nextChap.chapterId);
+  });
+
+  footer.appendChild(prevBtn);
+  footer.appendChild(info);
+  footer.appendChild(nextBtn);
+}
+
+// Toggle reading mode
+document.getElementById("btn-reading-mode").addEventListener("click", () => {
+  if (document.getElementById("reading-mode-overlay").classList.contains("open")) {
+    closeReadingMode();
+  } else {
+    openReadingMode();
+  }
+});
+
+// Close button
+document.getElementById("btn-reading-mode-close").addEventListener("click", closeReadingMode);
+
+// Dropdown toggle
+document.getElementById("reading-lang-select-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const dropdown = document.getElementById("reading-lang-dropdown");
+  const btn = document.getElementById("reading-lang-select-btn");
+  const isOpen = dropdown.classList.contains("open");
+  dropdown.classList.toggle("open", !isOpen);
+  btn.classList.toggle("open", !isOpen);
+  btn.setAttribute("aria-expanded", String(!isOpen));
+});
+
+// Dropdown option selection
+document.querySelectorAll(".reading-lang-option").forEach(opt => {
+  opt.addEventListener("click", () => {
+    const lang = opt.dataset.lang;
+    readingModeLang = lang === "all" ? null : lang;
+    updateReadingDropdownUI();
+    renderReadingMode();
+    document.getElementById("reading-lang-dropdown").classList.remove("open");
+    document.getElementById("reading-lang-select-btn").classList.remove("open");
+    document.getElementById("reading-lang-select-btn").setAttribute("aria-expanded", "false");
+  });
+});
+
+// Close dropdown on outside click
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#reading-lang-select-wrap")) {
+    document.getElementById("reading-lang-dropdown").classList.remove("open");
+    document.getElementById("reading-lang-select-btn").classList.remove("open");
+    document.getElementById("reading-lang-select-btn").setAttribute("aria-expanded", "false");
+  }
+});
+
+// Escape closes reading mode
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && document.getElementById("reading-mode-overlay").classList.contains("open")) {
+    closeReadingMode();
+  }
+});
+
+
+
+
+
+</script>
+</body>
+</html>
